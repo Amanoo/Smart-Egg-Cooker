@@ -37,3 +37,4 @@ Other peripherals:
 Project released under GPL3
 
 GUIslice released under MIT, all rights reserved for ImpulseAdventure
+TFT_eSPI released under BSD, all rights reserved for Bodmer
