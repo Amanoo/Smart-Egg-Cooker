@@ -17,8 +17,6 @@ GUIslice and TFT_eSPI libraries included because the configuration is a little t
 ## Connections:
 * 3.3V and ground delivered by Hi-Link
 
-* ![heat element switching](heatelementcircuit.png)
-
 Display:
 * T_CS   12
 * T_IRQ  27
@@ -32,6 +30,12 @@ Display:
 
 Other peripherals:
 * Buzzer on pin 0
+* ![heat element switching](heatelementcircuit.png)
+
+## TODO
+* Use preferences library to save last used settings and WiFi credentials
+* WiFi
+* Home Assistant integration
 
 ## Licence
 Project released under GPL3
