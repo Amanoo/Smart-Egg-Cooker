@@ -29,8 +29,8 @@ Preferences preferences;
 uint8_t wifisignal = 0;
 
 //egg properties
-uint8_t hardness = 1;
-uint8_t size = 0;
+uint8_t hardness=1;
+uint8_t size=2;
 char * sizeStrings[4] = {"S ", "M ", "L ", "XL"};
 
 //timer
@@ -89,21 +89,25 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
         if (!timer_running && size < 3)size++;
+        preferences.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SMALLER:
         //decrease egg size if timer is not running
         if (!timer_running && size > 0)size--;
+        preferences.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SOFTER:
         //decrease hardness if timer is not running
         if (!timer_running && hardness > 0)hardness--;
+        preferences.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_HARDER:
         //increase hardness if timer is not running
         if (!timer_running && hardness < 2)hardness++;
+        preferences.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_STARTBTN:
@@ -247,6 +251,13 @@ void setup()
   pinMode(heater, OUTPUT);
   digitalWrite(heater, LOW);
   pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
+
+  //load previous preferences
+  preferences.begin("my-app", false); 
+  int8_t temp = preferences.getChar("hardness", -1);
+  if(temp!=-1)hardness=temp;
+  temp = preferences.getChar("size", -1);
+  if(temp!=-1)size=temp;
 
   Serial.begin(9600);
   // Wait for USB Serial
