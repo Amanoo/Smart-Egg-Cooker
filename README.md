@@ -1,6 +1,8 @@
 # Smart-Egg-Cooker
 Design for a WiFi-enabled egg cooker with touchscreen and Home Assistant integration
 
+Libraries used: GUIslice by ImpulseAdventure, TFT_eSPI by Bodmer, and ThingPulse_XPT2046_Touch by ThingPulse.
+
 GUIslice and TFT_eSPI libraries included because the configuration is a little tricky. All rights to GUIslice reserved by ImpulseAdventure under the MIT licence. All rights to TFT_eSPI reserved by Bodmer under the BSD licence.
 
 ## Components used:
