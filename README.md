@@ -17,7 +17,7 @@ GUIslice library included because the configuration is a little tricky. All righ
 ## Connections:
 * 3.3V and ground delivered by Hi-Link
 
-![heat element switching](heatelementcircuit.png)
+* ![heat element switching](heatelementcircuit.png)
 
 Display:
 * T_CS   12
