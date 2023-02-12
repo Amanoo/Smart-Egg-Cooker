@@ -375,10 +375,11 @@ void InitGUIslice_gen()
   
   static gslc_tsXKeyPadCfg_Alpha sCfgTx;
   sCfgTx = gslc_ElemXKeyPadCfgInit_Alpha();
-  sCfgTx.sBaseCfg.nButtonSzW=sCfgTx.sBaseCfg.nButtonSzW+4;
-  sCfgTx.sBaseCfg.nButtonSzH=sCfgTx.sBaseCfg.nButtonSzH+12;
+  sCfgTx.sBaseCfg.nButtonSzW=sCfgTx.sBaseCfg.nButtonSzW+4;  //wider keys
+  sCfgTx.sBaseCfg.nButtonSzH=sCfgTx.sBaseCfg.nButtonSzH+12; //taller keys
+  sCfgTx.sBaseCfg.eLayoutDef=sCfgTx.sBaseCfg.eLayoutDef+1;  //default lower case
   m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
-    &m_sKeyPadAlpha, -2, 40, E_BUILTIN5X8, &sCfgTx);
+    &m_sKeyPadAlpha, -2, 40, 4, &sCfgTx);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
 //<InitGUI !End!>
 

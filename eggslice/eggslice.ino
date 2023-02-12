@@ -21,7 +21,7 @@
 // ------------------------------------------------
 
 // some multithreading
-TaskHandle_t WiFiTask;
+TaskHandle_t WiFiSearchTask;
 bool wifirunning=false;
 
 //GPIO
@@ -101,7 +101,7 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
             10000,  /* Stack size in words */
             NULL,  /* Task input parameter */
             1,  /* Priority of the task */
-            &WiFiTask,  /* Task handle. */
+            &WiFiSearchTask,  /* Task handle. */
             0); /* Core where the task should run */
         }
 
@@ -157,10 +157,13 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         gslc_SetPageCur(&m_gui, E_PG_WIFI); //go back
         break;
       case E_ELEM_WIFIOKBTN:
+        //Get WiFi credentials, save them, connect to them
         ssid=gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
         pass=gslc_ElemGetTxtStr(&m_gui, passwordInput);
-        Serial.println(ssid);
-        Serial.println(pass);
+        preferences.putString("ssid", ssid);
+        preferences.putString("pass", pass);
+        WiFi.disconnect();
+        WiFi.begin(ssid,pass);
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
         gslc_SetPageCur(&m_gui, E_PG_MAIN); //go to main page
         break;
@@ -285,9 +288,15 @@ void setup()
   if (temp > 0 && temp < 3)hardness = temp;
   temp = preferences.getChar("size", -1);
   if (temp >= 0 && temp < 4)size = temp;
+  String tempssid = preferences.getString("ssid", "");
+  String temppass = preferences.getString("pass", "");
+  tempssid.toCharArray(ssid,tempssid.length() + 1);
+  temppass.toCharArray(pass,temppass.length() + 1);
+  if(ssid!="" && tempssid.length()>0)WiFi.begin(ssid, pass);
 
+Serial.begin(9600);
 
-  Serial.begin(9600);
+  
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
 
@@ -302,7 +311,6 @@ void setup()
   update_egg();
   update_wifi();
   update_size();
-
 }
 
 // -----------------------------------
@@ -332,6 +340,17 @@ void loop()
     }
   }
   seconds_passed = curr_secs;
+
+  //show current wifi connection
+  if(!WiFi.isConnected()){
+    wifisignal=0;
+  }else{
+    int strength = WiFi.RSSI();
+    if(strength>-70){wifisignal=3;}
+    else if(strength>-85){wifisignal=2;}
+    else{wifisignal=1;}
+  }
+  update_wifi();
 
   // ------------------------------------------------
   // Periodically call GUIslice update function
@@ -415,5 +434,5 @@ void findWiFi( void * parameter) {
     }
   }
   wifirunning=false;
-  vTaskDelete(WiFiTask);
+  vTaskDelete(WiFiSearchTask);
 }
