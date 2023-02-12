@@ -22,7 +22,7 @@
 
 // some multithreading
 TaskHandle_t WiFiSearchTask;
-bool wifirunning=false;
+bool wifirunning = false;
 
 //GPIO
 #define heater 13
@@ -158,14 +158,16 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_WIFIOKBTN:
         //Get WiFi credentials, save them, connect to them
-        ssid=gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
-        pass=gslc_ElemGetTxtStr(&m_gui, passwordInput);
-        preferences.putString("ssid", ssid);
-        preferences.putString("pass", pass);
-        Serial.println(ssid);
-        Serial.println(pass);
+        ssid = gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
+        pass = gslc_ElemGetTxtStr(&m_gui, passwordInput);
+        preferences.putString("ssid", String(ssid));
+        preferences.putString("pass", String(pass));
+        Serial.println(String(ssid));
+        Serial.println(String(pass));
+
+        Serial.println(String(ssid).length());
         WiFi.disconnect();
-        WiFi.begin(ssid,pass);
+        WiFi.begin(ssid, pass);
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
         gslc_SetPageCur(&m_gui, E_PG_MAIN); //go to main page
         break;
@@ -275,6 +277,9 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
 
 void setup()
 {
+
+  Serial.begin(9600);
+  delay(10);
   // ------------------------------------------------
   // Initialize
   // ------------------------------------------------
@@ -290,19 +295,21 @@ void setup()
   if (temp > 0 && temp < 3)hardness = temp;
   temp = preferences.getChar("size", -1);
   if (temp >= 0 && temp < 4)size = temp;
+  //load wifi
   String tempssid = preferences.getString("ssid", "");
+  char sssid[tempssid.length() + 1];
+  tempssid.toCharArray(sssid, sizeof(sssid));
+  ssid = sssid;
   String temppass = preferences.getString("pass", "");
-  tempssid.toCharArray(ssid,tempssid.length() + 1);
-  temppass.toCharArray(pass,temppass.length() + 1);
-  Serial.println(tempssid.length());
-  if(ssid!="" && tempssid.length()>0){
-    Serial.println("initconnect");
+  char ppass[temppass.length() + 1];
+  temppass.toCharArray(ppass, sizeof(ppass));
+  pass = ppass;
+  if (ssid != "" && tempssid.length() > 0) {
     WiFi.begin(ssid, pass);
   }
 
-Serial.begin(9600);
 
-  
+
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
 
@@ -348,13 +355,19 @@ void loop()
   seconds_passed = curr_secs;
 
   //show current wifi connection
-  if(!WiFi.isConnected()){
-    wifisignal=0;
-  }else{
+  if (!WiFi.isConnected()) {
+    wifisignal = 0;
+  } else {
     int strength = WiFi.RSSI();
-    if(strength>-70){wifisignal=3;}
-    else if(strength>-85){wifisignal=2;}
-    else{wifisignal=1;}
+    if (strength > -70) {
+      wifisignal = 3;
+    }
+    else if (strength > -85) {
+      wifisignal = 2;
+    }
+    else {
+      wifisignal = 1;
+    }
   }
   update_wifi();
 
@@ -430,7 +443,7 @@ void update_timer() {
 
 //find WiFi networks and put them in the GUI
 void findWiFi( void * parameter) {
-  wifirunning=true;
+  wifirunning = true;
   int n = WiFi.scanNetworks(false, false, false, 150);
   if (n > 0)  {
     Serial.print(n);
@@ -439,6 +452,6 @@ void findWiFi( void * parameter) {
       gslc_ElemXListboxAddItem(&m_gui, wifiListBox, WiFi.SSID(i).c_str());
     }
   }
-  wifirunning=false;
+  wifirunning = false;
   vTaskDelete(WiFiSearchTask);
 }
