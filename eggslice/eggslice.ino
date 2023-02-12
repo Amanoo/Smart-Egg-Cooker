@@ -33,6 +33,8 @@ Preferences preferences;
 
 //WiFi
 uint8_t wifisignal = 0;
+char * ssid;
+char * pass;
 
 //egg properties
 uint8_t hardness = 1;
@@ -152,10 +154,15 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadAlpha, E_POP_KEYPAD_ALPHA, passwordInput);
         break;
       case E_ELEM_BTN11:
-        gslc_SetPageCur(&m_gui, E_PG_WIFI);
+        gslc_SetPageCur(&m_gui, E_PG_WIFI); //go back
         break;
       case E_ELEM_WIFIOKBTN:
-        gslc_SetPageCur(&m_gui, E_PG_MAIN);
+        ssid=gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
+        pass=gslc_ElemGetTxtStr(&m_gui, passwordInput);
+        Serial.println(ssid);
+        Serial.println(pass);
+        gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
+        gslc_SetPageCur(&m_gui, E_PG_MAIN); //go to main page
         break;
       //<Button Enums !End!>
       default:
@@ -213,9 +220,11 @@ bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
   switch (pElem->nId) {
     //<Listbox Enums !Start!>
 
-    case E_ELEM_WIFILISTBOX:
+    case E_ELEM_WIFILISTBOX:  //Element on our WiFi list was pressed
       if (nSelId != XLISTBOX_SEL_NONE) {
-        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);
+        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR); //get selected WiFi SSID
+        Serial.println(acTxt);
+        gslc_ElemSetTxtStr(&m_gui, wifiNameLabel, acTxt); //put WiFi SSID as the page title
         gslc_SetPageCur(&m_gui, E_PG_PASSWD);
       }
       break;

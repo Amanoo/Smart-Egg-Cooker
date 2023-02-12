@@ -344,8 +344,9 @@ void InitGUIslice_gen()
   
   
   // Create E_ELEM_WIFINAME text label
+  static char mstr4[20] = ""; 
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_WIFINAME,E_PG_PASSWD,(gslc_tsRect){10,10,300,20},
-    (char*)"",0,E_DOSIS_BOOK12);
+    mstr4,sizeof(mstr4),E_DOSIS_BOOK12);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
   wifiNameLabel = pElemRef;
@@ -374,8 +375,10 @@ void InitGUIslice_gen()
   
   static gslc_tsXKeyPadCfg_Alpha sCfgTx;
   sCfgTx = gslc_ElemXKeyPadCfgInit_Alpha();
+  sCfgTx.sBaseCfg.nButtonSzW=sCfgTx.sBaseCfg.nButtonSzW+4;
+  sCfgTx.sBaseCfg.nButtonSzH=sCfgTx.sBaseCfg.nButtonSzH+12;
   m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
-    &m_sKeyPadAlpha, 65, 80, E_BUILTIN5X8, &sCfgTx);
+    &m_sKeyPadAlpha, -2, 40, E_BUILTIN5X8, &sCfgTx);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
 //<InitGUI !End!>
 
