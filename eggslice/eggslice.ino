@@ -162,6 +162,8 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         pass=gslc_ElemGetTxtStr(&m_gui, passwordInput);
         preferences.putString("ssid", ssid);
         preferences.putString("pass", pass);
+        Serial.println(ssid);
+        Serial.println(pass);
         WiFi.disconnect();
         WiFi.begin(ssid,pass);
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
@@ -292,7 +294,11 @@ void setup()
   String temppass = preferences.getString("pass", "");
   tempssid.toCharArray(ssid,tempssid.length() + 1);
   temppass.toCharArray(pass,temppass.length() + 1);
-  if(ssid!="" && tempssid.length()>0)WiFi.begin(ssid, pass);
+  Serial.println(tempssid.length());
+  if(ssid!="" && tempssid.length()>0){
+    Serial.println("initconnect");
+    WiFi.begin(ssid, pass);
+  }
 
 Serial.begin(9600);
 
