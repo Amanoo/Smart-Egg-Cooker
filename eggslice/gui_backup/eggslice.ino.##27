@@ -14,16 +14,10 @@
 // ------------------------------------------------
 #include "eggslice_GSLC.h"
 #include <Preferences.h>
-#include "WiFi.h"
 
 // ------------------------------------------------
 // Program Globals
 // ------------------------------------------------
-
-// some multithreading
-TaskHandle_t WiFiTask;
-bool wifirunning=false;
-
 //GPIO
 #define heater 13
 #define backlight 26
@@ -35,12 +29,12 @@ Preferences preferences;
 uint8_t wifisignal = 0;
 
 //egg properties
-uint8_t hardness = 1;
-uint8_t size = 2;
+uint8_t hardness=1;
+uint8_t size=2;
 char * sizeStrings[4] = {"S ", "M ", "L ", "XL"};
 
 //timer
-bool timer_running = false;
+bool timer_running=false;
 int timer_seconds = 0;
 int64_t seconds_passed = 0;
 
@@ -83,7 +77,6 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
   gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui, pElemRef);
 
   if ( eTouch == GSLC_TOUCH_UP_IN ) {
-
     // From the element's ID we can determine which button was pressed.
     switch (pElem->nId) {
       //<Button Enums !Start!>
@@ -91,19 +84,8 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       case E_ELEM_WIFI33:
       case E_ELEM_WIFI66:
       case E_ELEM_WIFI100:
-        if (!wifirunning) { //if we're not already looking for networks, start new network task
-          gslc_ElemXListboxReset(&m_gui, wifiListBox); //Empty WiFi list
-          xTaskCreatePinnedToCore(  //create a new thread
-            findWiFi, //run the command to find new WiFi networks
-            "Find-WiFi", /* Name of the task */
-            10000,  /* Stack size in words */
-            NULL,  /* Task input parameter */
-            1,  /* Priority of the task */
-            &WiFiTask,  /* Task handle. */
-            0); /* Core where the task should run */
-        }
-
         gslc_SetPageCur(&m_gui, E_PG_WIFI); //open WiFi menu
+        //TODO find networks
         break;
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
@@ -136,15 +118,16 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
           digitalWrite(heater, HIGH); //turn on heating
           gslc_ElemSetTxtStr(&m_gui, startLabel, "Stop");
         } else {
-          digitalWrite(heater, LOW); //turn heater off
-          gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
+            digitalWrite(heater, LOW); //turn heater off
+            gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
+
           //Reset timer
           gslc_ElemSetVisible(&m_gui, timerLabel, true); //timer visible
           ledcDetachPin(buzzer);
           update_timer();
         }
         break;
-      case E_ELEM_BTN10: //go back to mainscreen
+      case E_ELEM_BTN10:
         gslc_SetPageCur(&m_gui, E_PG_MAIN);
         break;
       case E_ELEM_PASSINPUT:
@@ -271,12 +254,11 @@ void setup()
   pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
 
   //load previous preferences
-  preferences.begin("my-app", false);
+  preferences.begin("my-app", false); 
   int8_t temp = preferences.getChar("hardness", -1);
-  if (temp > 0 && temp < 3)hardness = temp;
+  if(temp!=-1)hardness=temp;
   temp = preferences.getChar("size", -1);
-  if (temp >= 0 && temp < 4)size = temp;
-
+  if(temp!=-1)size=temp;
 
   Serial.begin(9600);
   // Wait for USB Serial
@@ -293,7 +275,6 @@ void setup()
   update_egg();
   update_wifi();
   update_size();
-
 }
 
 // -----------------------------------
@@ -311,7 +292,7 @@ void loop()
       timer_seconds--;
       update_timer();
     } else { //if timer has run out, run alarm
-      digitalWrite(heater, LOW); //turn heater off
+        digitalWrite(heater, LOW); //turn heater off
       if (seconds_passed % 2) {
         gslc_ElemSetVisible(&m_gui, timerLabel, true); //timer visible
         ledcAttachPin(buzzer, 0);             //buzzer channel 0
@@ -392,19 +373,4 @@ void update_timer() {
   char numstr[6];
   sprintf(numstr, "%02d:%02d", minutes, secs);
   gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
-}
-
-//find WiFi networks and put them in the GUI
-void findWiFi( void * parameter) {
-  wifirunning=true;
-  int n = WiFi.scanNetworks(false, false, false, 150);
-  if (n > 0)  {
-    Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i) {
-      gslc_ElemXListboxAddItem(&m_gui, wifiListBox, WiFi.SSID(i).c_str());
-    }
-  }
-  wifirunning=false;
-  vTaskDelete(WiFiTask);
 }

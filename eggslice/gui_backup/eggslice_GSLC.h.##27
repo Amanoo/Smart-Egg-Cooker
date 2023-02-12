@@ -306,7 +306,7 @@ void InitGUIslice_gen()
   
   // Create listbox
   pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_WIFILISTBOX,E_PG_WIFI,&m_sListbox2,
-    (gslc_tsRect){10+2,10+4,300-4-40,180-7},E_FREESANS14,
+    (gslc_tsRect){10+2,10+4,300-4-20,180-7},E_FREESANS14,
     (uint8_t*)&m_acListboxBuf2,sizeof(m_acListboxBuf2),0);
   gslc_ElemXListboxSetSize(&m_gui, pElemRef, 4, 1); // 4 rows, 1 columns
   gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 35);
@@ -330,7 +330,7 @@ void InitGUIslice_gen()
 
   // Create vertical scrollbar for listbox
   pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL2,E_PG_WIFI,&m_sListScroll2,
-          (gslc_tsRect){10+300-2-40,10+4,40,180-8},0,15,0,5,true);
+          (gslc_tsRect){10+300-2-20,10+4,20,180-8},0,15,0,5,true);
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
   gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
   m_pListSlider2 = pElemRef;
