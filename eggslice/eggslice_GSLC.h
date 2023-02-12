@@ -39,7 +39,7 @@
 #include <TFT_eSPI.h>
 #include "FreeSans14pt7b.h"
 //#include "NULLFreeSans18pt7b.h"
-#include "FreeSans30pt7b.h"
+#include "NotoMono24pt7b.h"
 #include "NotoSansBold14pt7b.h"
 #include "dosis_book12pt7b.h"
 #include "dosis_book16pt7b.h"
@@ -66,12 +66,14 @@ enum {E_PG_MAIN,E_PG_WIFI,E_PG_PASSWD,E_POP_KEYPAD_ALPHA};
 enum {E_ELEM_BIGGER,E_ELEM_BTN10,E_ELEM_BTN11,E_ELEM_EGGIMG_HARD
       ,E_ELEM_EGGIMG_MED,E_ELEM_EGGIMG_SOFT,E_ELEM_HARDER
       ,E_ELEM_PASSINPUT,E_ELEM_SIZE,E_ELEM_SMALLER,E_ELEM_SOFTER
-      ,E_ELEM_STARTBTN,E_ELEM_TIMER,E_ELEM_WIFI100,E_ELEM_WIFI33
-      ,E_ELEM_WIFI66,E_ELEM_WIFILISTBOX,E_ELEM_WIFINAME,E_ELEM_WIFIOFF
-      ,E_ELEM_WIFIOKBTN,E_LISTSCROLL2,E_ELEM_KEYPAD_ALPHA};
+      ,E_ELEM_STARTBTN,E_ELEM_TEXT9,E_ELEM_TIMER,E_ELEM_WIFI100
+      ,E_ELEM_WIFI33,E_ELEM_WIFI66,E_ELEM_WIFILISTBOX,E_ELEM_WIFINAME
+      ,E_ELEM_WIFIOFF,E_ELEM_WIFIOKBTN,E_LISTSCROLL2
+      ,E_ELEM_KEYPAD_ALPHA};
 // Must use separate enum for fonts with MAX_FONT at end to use gslc_FontSet.
-enum {E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12,E_DOSIS_BOOK16
-      ,E_FREESANS14,E_FREESANS18,E_FREESANS30,E_NOTOSANSBOLD14,MAX_FONT};
+enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12
+        ,E_DOSIS_BOOK16,E_FREESANS14,E_FREESANS18,E_NOTOMONO24
+      ,E_NOTOSANSBOLD14,MAX_FONT};
 //<Enum !End!>
 
 // ------------------------------------------------
@@ -90,7 +92,7 @@ enum {E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12,E_DOSIS_BOOK16
 #define MAX_ELEM_PG_WIFI 4 // # Elems total on page
 #define MAX_ELEM_PG_WIFI_RAM MAX_ELEM_PG_WIFI // # Elems in RAM
 
-#define MAX_ELEM_PG_PASSWD 4 // # Elems total on page
+#define MAX_ELEM_PG_PASSWD 5 // # Elems total on page
 #define MAX_ELEM_PG_PASSWD_RAM MAX_ELEM_PG_PASSWD // # Elems in RAM
 //<ElementDefines !End!>
 
@@ -172,13 +174,14 @@ void InitGUIslice_gen()
   // Load Fonts
   // ------------------------------------------------
 //<Load_Fonts !Start!>
+    if (!gslc_FontSet(&m_gui,E_BUILTIN10X16,GSLC_FONTREF_PTR,NULL,2)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN15X24,GSLC_FONTREF_PTR,NULL,3)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK12,GSLC_FONTREF_PTR,&dosis_book12pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK16,GSLC_FONTREF_PTR,&dosis_book16pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_FREESANS14,GSLC_FONTREF_PTR,&FreeSans14pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_FREESANS18,GSLC_FONTREF_PTR,&FreeSans18pt7b,1)) { return; }
-    if (!gslc_FontSet(&m_gui,E_FREESANS30,GSLC_FONTREF_PTR,&FreeSans30pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_NOTOMONO24,GSLC_FONTREF_PTR,&NotoMono24pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOSANSBOLD14,GSLC_FONTREF_PTR,&NotoSansBold14pt7b,1)) { return; }
 //<Load_Fonts !End!>
 
@@ -259,9 +262,9 @@ void InitGUIslice_gen()
     (gslc_tsRect){270,90,40,40},(char*)"-",0,E_NOTOSANSBOLD14,&CbBtnCommon);
   gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
   
-  // Create E_ELEM_SIZE text label
-  static char mstr1[20] = "XL"; // FIXME
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_SIZE,E_PG_MAIN,(gslc_tsRect){235,25,30,25},
+    // Create E_ELEM_SIZE text label  
+  static char mstr1[20] = "XL";   
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_SIZE,E_PG_MAIN,(gslc_tsRect){235,25,30,25}, 
     mstr1, sizeof(mstr1),E_DOSIS_BOOK16);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
@@ -280,18 +283,18 @@ void InitGUIslice_gen()
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_LEFT);
   gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
   
-  // Create E_ELEM_TIMER text label
-  static char mstr2[20] = "00:00"; // FIXME
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TIMER,E_PG_MAIN,(gslc_tsRect){20,50,150,50},
-    mstr2, sizeof(mstr2),E_FREESANS30);
+    // Create E_ELEM_TIMER text label 
+  static char mstr2[20] = "00:00";  
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TIMER,E_PG_MAIN,(gslc_tsRect){12,50,150,50},  
+    mstr2, sizeof(mstr2),E_NOTOMONO24);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
   timerLabel = pElemRef;
-
-  // create E_ELEM_STARTBTN button with text label
-  static char mstr3[20] = "Start"; // FIXME
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_STARTBTN,E_PG_MAIN,
+  
+    // create E_ELEM_STARTBTN button with text label  
+  static char mstr3[20] = "Start";  
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_STARTBTN,E_PG_MAIN,  
     (gslc_tsRect){40,125,100,50},mstr3,sizeof(mstr3),E_FREESANS18,&CbBtnCommon);
   gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
   startLabel = pElemRef;
@@ -344,16 +347,15 @@ void InitGUIslice_gen()
   
   
   // Create E_ELEM_WIFINAME text label
-  static char mstr4[20] = ""; 
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_WIFINAME,E_PG_PASSWD,(gslc_tsRect){10,10,300,20},
-    mstr4,sizeof(mstr4),E_DOSIS_BOOK12);
+    (char*)"",0,E_DOSIS_BOOK12);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
   wifiNameLabel = pElemRef;
   
   // Create E_ELEM_PASSINPUT text input field
   static char m_sInputText2[101] = "";
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_PASSINPUT,E_PG_PASSWD,(gslc_tsRect){10,50,300,45},
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_PASSINPUT,E_PG_PASSWD,(gslc_tsRect){10,50,320,25},
     (char*)m_sInputText2,101,E_DOSIS_BOOK16);
   gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
@@ -369,17 +371,19 @@ void InitGUIslice_gen()
   // create E_ELEM_WIFIOKBTN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFIOKBTN,E_PG_PASSWD,
     (gslc_tsRect){230,195,80,40},(char*)"OK",0,E_FREESANS14,&CbBtnCommon);
+  
+  // Create E_ELEM_TEXT9 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT9,E_PG_PASSWD,(gslc_tsRect){250,150,49,18},
+    (char*)"",0,E_BUILTIN10X16);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_ALPHA
   
   static gslc_tsXKeyPadCfg_Alpha sCfgTx;
   sCfgTx = gslc_ElemXKeyPadCfgInit_Alpha();
-  sCfgTx.sBaseCfg.nButtonSzW=sCfgTx.sBaseCfg.nButtonSzW+4;  //wider keys
-  sCfgTx.sBaseCfg.nButtonSzH=sCfgTx.sBaseCfg.nButtonSzH+12; //taller keys
-  sCfgTx.sBaseCfg.eLayoutDef=sCfgTx.sBaseCfg.eLayoutDef+1;  //default lower case
   m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
-    &m_sKeyPadAlpha, -2, 40, 4, &sCfgTx);
+    &m_sKeyPadAlpha, 65, 80, E_BUILTIN5X8, &sCfgTx);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
 //<InitGUI !End!>
 
