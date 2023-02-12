@@ -292,7 +292,7 @@ void setup()
   //load previous preferences
   preferences.begin("my-app", false);
   int8_t temp = preferences.getChar("hardness", -1);
-  if (temp > 0 && temp < 3)hardness = temp;
+  if (temp >= 0 && temp < 3)hardness = temp;
   temp = preferences.getChar("size", -1);
   if (temp >= 0 && temp < 4)size = temp;
   //load wifi
