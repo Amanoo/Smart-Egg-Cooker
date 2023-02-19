@@ -1,0 +1,25 @@
+int DebugOut(char);
+bool CbBtnCommon(void *, void *, int, int, int);
+bool CbCheckbox(void *, void *, int, bool);
+bool CbDrawScanner(void *, void *, int);
+bool CbKeypad(void *, void *, int, void *);
+bool CbListbox(void *, void *, int);
+bool CbSlidePos(void *, void *, int);
+bool CbSpinner(void *, void *, int, void *);
+bool CbTickScanner(void *, void *);
+void InitGUIslice_gen();
+//int DebugOut(char);
+bool CbBtnCommon(void *, void *, int, int, int);
+bool CbKeypad(void *, void *, int, void *);
+bool CbListbox(void *, void *, int);
+bool CbSlidePos(void *, void *, int);
+void update_wifi();
+void update_egg();
+void update_size();
+void update_timer();
+void findWiFi(void *);
+class EggCooker {       // The class
+  public:             // Access specifier
+    void setup();
+    void loop();
+};

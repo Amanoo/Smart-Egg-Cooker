@@ -147,7 +147,7 @@ extern gslc_tsElemRef* m_pElemKeyPadAlpha;
 //<Extern_References !End!>
 
 // Define debug message function
-static int16_t DebugOut(char ch);
+//static int16_t DebugOut(char ch);
 
 // ------------------------------------------------
 // Callback Methods
@@ -318,16 +318,6 @@ void InitGUIslice_gen()
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLACK);
   gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
   gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 6,GSLC_COL_BLACK);
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "htryhr");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "hjstrj");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "sjtrjtr");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "jtsrjstr");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "sjtrsrjt");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "jtrsjtrssjtr");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "jtrsjtrs");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "jtrsjtrsjstr");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "trjsjstrr");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "trjssjtr");
   gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
   wifiListBox = pElemRef;
 
@@ -347,15 +337,16 @@ void InitGUIslice_gen()
   
   
   // Create E_ELEM_WIFINAME text label
+  static char mstr4[32] = "";     
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_WIFINAME,E_PG_PASSWD,(gslc_tsRect){10,10,300,20},
-    (char*)"",0,E_DOSIS_BOOK12);
+    mstr4,sizeof(mstr4),E_DOSIS_BOOK12);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
   wifiNameLabel = pElemRef;
   
   // Create E_ELEM_PASSINPUT text input field
   static char m_sInputText2[101] = "";
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_PASSINPUT,E_PG_PASSWD,(gslc_tsRect){10,50,320,25},
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_PASSINPUT,E_PG_PASSWD,(gslc_tsRect){10,50,300,50},
     (char*)m_sInputText2,101,E_DOSIS_BOOK16);
   gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
@@ -372,9 +363,6 @@ void InitGUIslice_gen()
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFIOKBTN,E_PG_PASSWD,
     (gslc_tsRect){230,195,80,40},(char*)"OK",0,E_FREESANS14,&CbBtnCommon);
   
-  // Create E_ELEM_TEXT9 text label
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT9,E_PG_PASSWD,(gslc_tsRect){250,150,49,18},
-    (char*)"",0,E_BUILTIN10X16);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
 
   // -----------------------------------
@@ -382,8 +370,10 @@ void InitGUIslice_gen()
   
   static gslc_tsXKeyPadCfg_Alpha sCfgTx;
   sCfgTx = gslc_ElemXKeyPadCfgInit_Alpha();
+  sCfgTx.sBaseCfg.nButtonSzW=16;
+  sCfgTx.sBaseCfg.nButtonSzH=36;
   m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
-    &m_sKeyPadAlpha, 65, 80, E_BUILTIN5X8, &sCfgTx);
+    &m_sKeyPadAlpha, -2, 51, 4, &sCfgTx);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
 //<InitGUI !End!>
 
