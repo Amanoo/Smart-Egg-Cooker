@@ -1,3 +1,4 @@
+#include "esphome.h"
 int DebugOut(char);
 bool CbBtnCommon(void *, void *, int, int, int);
 bool CbCheckbox(void *, void *, int, bool);
@@ -18,8 +19,8 @@ void update_egg();
 void update_size();
 void update_timer();
 void findWiFi(void *);
-class EggCooker {       // The class
-  public:             // Access specifier
-    void setup();
-    void loop();
+class EggCooker : public Component, public CustomAPIDevice {
+  public:
+    void setup() override;
+    void loop() override;
 };

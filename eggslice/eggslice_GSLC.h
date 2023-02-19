@@ -373,7 +373,7 @@ void InitGUIslice_gen()
   sCfgTx.sBaseCfg.nButtonSzW=16;
   sCfgTx.sBaseCfg.nButtonSzH=36;
   m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
-    &m_sKeyPadAlpha, -2, 51, 4, &sCfgTx);
+    &m_sKeyPadAlpha, -2, 51, 3, &sCfgTx);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
 //<InitGUI !End!>
 
