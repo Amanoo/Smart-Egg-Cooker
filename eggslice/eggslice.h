@@ -21,6 +21,11 @@ void update_timer();
 void findWiFi(void *);
 class EggCooker : public Component, public CustomAPIDevice {
   public:
+    EggCooker(Sensor *secs, TextSensor *state);
     void setup() override;
     void loop() override;
+  private:
+    Sensor *secs_ {nullptr};
+    TextSensor *state_ {nullptr};
+    void stopService();
 };

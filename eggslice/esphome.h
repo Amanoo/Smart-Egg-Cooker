@@ -4,3 +4,5 @@ class CustomAPIDevice{
   virtual void setup();
   virtual void loop();
 };
+class Sensor{};
+class TextSensor{};

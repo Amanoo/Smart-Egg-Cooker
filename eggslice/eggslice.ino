@@ -1,5 +1,7 @@
 #include "eggslice.h"
-EggCooker eggcooker;
+Sensor sens;
+TextSensor text;
+EggCooker eggcooker(&sens, &text);
 
 void setup(){
   eggcooker.setup();

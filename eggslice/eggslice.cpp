@@ -273,6 +273,9 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 //<Tick Callback !Start!>
 //<Tick Callback !End!>
 
+//constructor
+EggCooker::EggCooker(Sensor *secs, TextSensor *state) : secs_(secs), state_(state) {}
+
 void EggCooker::setup() {
 
   Serial.begin(9600);
@@ -305,7 +308,8 @@ void EggCooker::setup() {
     WiFi.begin(ssid, pass);
   }
 
-
+  //register Home Assistant service
+  //register_service(&EggCooker::stopService, "stop_service", {});
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
