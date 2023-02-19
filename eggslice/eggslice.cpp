@@ -35,13 +35,13 @@ Preferences preferences;
 
 //WiFi
 uint8_t wifisignal = 0;
-char * ssid;
-char * pass;
+char* ssid;
+char* pass;
 
 //egg properties
 uint8_t hardness = 1;
 uint8_t size = 2;
-char * sizeStrings[4] = {"S ", "M ", "L ", "XL"};
+char* sizeStrings[4] = { "S ", "M ", "L ", "XL" };
 
 //timer
 bool timer_running = false;
@@ -51,20 +51,20 @@ int64_t seconds_passed = 0;
 
 // Save some element references for direct access
 //<Save_References !Start!>
-gslc_tsElemRef* eggImg_hard       = NULL;
-gslc_tsElemRef* eggImg_med        = NULL;
-gslc_tsElemRef* eggImg_soft       = NULL;
-gslc_tsElemRef* eggSizeLabel      = NULL;
-gslc_tsElemRef* m_pListSlider2    = NULL;
-gslc_tsElemRef* passwordInput     = NULL;
-gslc_tsElemRef* startLabel        = NULL;
-gslc_tsElemRef* timerLabel        = NULL;
-gslc_tsElemRef* wifiImg_100       = NULL;
-gslc_tsElemRef* wifiImg_33        = NULL;
-gslc_tsElemRef* wifiImg_66        = NULL;
-gslc_tsElemRef* wifiImg_off       = NULL;
-gslc_tsElemRef* wifiListBox       = NULL;
-gslc_tsElemRef* wifiNameLabel     = NULL;
+gslc_tsElemRef* eggImg_hard = NULL;
+gslc_tsElemRef* eggImg_med = NULL;
+gslc_tsElemRef* eggImg_soft = NULL;
+gslc_tsElemRef* eggSizeLabel = NULL;
+gslc_tsElemRef* m_pListSlider2 = NULL;
+gslc_tsElemRef* passwordInput = NULL;
+gslc_tsElemRef* startLabel = NULL;
+gslc_tsElemRef* timerLabel = NULL;
+gslc_tsElemRef* wifiImg_100 = NULL;
+gslc_tsElemRef* wifiImg_33 = NULL;
+gslc_tsElemRef* wifiImg_66 = NULL;
+gslc_tsElemRef* wifiImg_off = NULL;
+gslc_tsElemRef* wifiListBox = NULL;
+gslc_tsElemRef* wifiNameLabel = NULL;
 gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
 //<Save_References !End!>
 
@@ -79,14 +79,13 @@ gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
 // Callback Methods
 // ------------------------------------------------
 // Common Button callback
-bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, int16_t nY)
-{
+bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, int16_t nY) {
   // Typecast the parameters to match the GUI and element types
-  gslc_tsGui*     pGui     = (gslc_tsGui*)(pvGui);
+  gslc_tsGui* pGui = (gslc_tsGui*)(pvGui);
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
-  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui, pElemRef);
+  gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
 
-  if ( eTouch == GSLC_TOUCH_UP_IN ) {
+  if (eTouch == GSLC_TOUCH_UP_IN) {
 
     // From the element's ID we can determine which button was pressed.
     switch (pElem->nId) {
@@ -95,41 +94,41 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       case E_ELEM_WIFI33:
       case E_ELEM_WIFI66:
       case E_ELEM_WIFI100:
-        if (!wifirunning) { //if we're not already looking for networks, start new network task
-          gslc_ElemXListboxReset(&m_gui, wifiListBox); //Empty WiFi list
-          xTaskCreatePinnedToCore(  //create a new thread
-            findWiFi, //run the command to find new WiFi networks
-            "Find-WiFi", /* Name of the task */
-            10000,  /* Stack size in words */
-            NULL,  /* Task input parameter */
-            1,  /* Priority of the task */
-            &WiFiSearchTask,  /* Task handle. */
-            0); /* Core where the task should run */
+        if (!wifirunning) {                             //if we're not already looking for networks, start new network task
+          gslc_ElemXListboxReset(&m_gui, wifiListBox);  //Empty WiFi list
+          xTaskCreatePinnedToCore(                      //create a new thread
+            findWiFi,                                   //run the command to find new WiFi networks
+            "Find-WiFi",                                /* Name of the task */
+            10000,                                      /* Stack size in words */
+            NULL,                                       /* Task input parameter */
+            1,                                          /* Priority of the task */
+            &WiFiSearchTask,                            /* Task handle. */
+            0);                                         /* Core where the task should run */
         }
 
-        gslc_SetPageCur(&m_gui, E_PG_WIFI); //open WiFi menu
+        gslc_SetPageCur(&m_gui, E_PG_WIFI);  //open WiFi menu
         break;
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
-        if (!timer_running && size < 3)size++;
+        if (!timer_running && size < 3) size++;
         preferences.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SMALLER:
         //decrease egg size if timer is not running
-        if (!timer_running && size > 0)size--;
+        if (!timer_running && size > 0) size--;
         preferences.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SOFTER:
         //decrease hardness if timer is not running
-        if (!timer_running && hardness > 0)hardness--;
+        if (!timer_running && hardness > 0) hardness--;
         preferences.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_HARDER:
         //increase hardness if timer is not running
-        if (!timer_running && hardness < 2)hardness++;
+        if (!timer_running && hardness < 2) hardness++;
         preferences.putChar("hardness", hardness);
         update_egg();
         break;
@@ -137,18 +136,18 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         //start or stop the timer
         timer_running = !timer_running;
         if (timer_running) {
-          digitalWrite(heater, HIGH); //turn on heating
+          digitalWrite(heater, HIGH);  //turn on heating
           gslc_ElemSetTxtStr(&m_gui, startLabel, "Stop");
         } else {
-          digitalWrite(heater, LOW); //turn heater off
+          digitalWrite(heater, LOW);  //turn heater off
           gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
           //Reset timer
-          gslc_ElemSetVisible(&m_gui, timerLabel, true); //timer visible
+          gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
           ledcDetachPin(buzzer);
           update_timer();
         }
         break;
-      case E_ELEM_BTN10: //go back to mainscreen
+      case E_ELEM_BTN10:  //go back to mainscreen
         gslc_SetPageCur(&m_gui, E_PG_MAIN);
         break;
       case E_ELEM_PASSINPUT:
@@ -156,7 +155,7 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadAlpha, E_POP_KEYPAD_ALPHA, passwordInput);
         break;
       case E_ELEM_BTN11:
-        gslc_SetPageCur(&m_gui, E_PG_WIFI); //go back
+        gslc_SetPageCur(&m_gui, E_PG_WIFI);  //go back
         break;
       case E_ELEM_WIFIOKBTN:
         //Get WiFi credentials, save them, connect to them
@@ -171,7 +170,7 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         WiFi.disconnect();
         WiFi.begin(ssid, pass);
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
-        gslc_SetPageCur(&m_gui, E_PG_MAIN); //go to main page
+        gslc_SetPageCur(&m_gui, E_PG_MAIN);             //go to main page
         break;
       //<Button Enums !End!>
       default:
@@ -183,11 +182,10 @@ bool CbBtnCommon(void* pvGui, void *pvElemRef, gslc_teTouch eTouch, int16_t nX, 
 //<Checkbox Callback !Start!>
 //<Checkbox Callback !End!>
 // KeyPad Input Ready callback
-bool CbKeypad(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
-{
-  gslc_tsGui*     pGui     = (gslc_tsGui*)pvGui;
+bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData) {
+  gslc_tsGui* pGui = (gslc_tsGui*)pvGui;
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
-  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui, pElemRef);
+  gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
 
   // From the pvData we can get the ID element that is ready.
   int16_t nTargetElemId = gslc_ElemXKeyPadDataTargetIdGet(pGui, pvData);
@@ -196,7 +194,7 @@ bool CbKeypad(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
     // - If we have a popup active, pass the return value directly to
     //   the corresponding value field
     switch (nTargetElemId) {
-      //<Keypad Enums !Start!>
+        //<Keypad Enums !Start!>
 
       case E_ELEM_PASSINPUT:
         gslc_ElemXKeyPadInputGet(pGui, passwordInput, pvData);
@@ -214,12 +212,11 @@ bool CbKeypad(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
 }
 //<Spinner Callback !Start!>
 //<Spinner Callback !End!>
-bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
-{
-  gslc_tsGui*     pGui     = (gslc_tsGui*)(pvGui);
+bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId) {
+  gslc_tsGui* pGui = (gslc_tsGui*)(pvGui);
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
-  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui, pElemRef);
-  char            acTxt[MAX_STR + 1];
+  gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
+  char acTxt[MAX_STR + 1];
 
   if (pElemRef == NULL) {
     return false;
@@ -227,13 +224,13 @@ bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
 
   // From the element's ID we can determine which listbox was active.
   switch (pElem->nId) {
-    //<Listbox Enums !Start!>
+      //<Listbox Enums !Start!>
 
     case E_ELEM_WIFILISTBOX:  //Element on our WiFi list was pressed
       if (nSelId != XLISTBOX_SEL_NONE) {
-        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR); //get selected WiFi SSID
+        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);  //get selected WiFi SSID
         Serial.println(acTxt);
-        gslc_ElemSetTxtStr(&m_gui, wifiNameLabel, acTxt); //put WiFi SSID as the page title
+        gslc_ElemSetTxtStr(&m_gui, wifiNameLabel, acTxt);  //put WiFi SSID as the page title
         gslc_SetPageCur(&m_gui, E_PG_PASSWD);
       }
       break;
@@ -247,17 +244,16 @@ bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
 //<Draw Callback !End!>
 
 // Callback function for when a slider's position has been updated
-bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
-{
-  gslc_tsGui*     pGui     = (gslc_tsGui*)(pvGui);
+bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
+  gslc_tsGui* pGui = (gslc_tsGui*)(pvGui);
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
-  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui, pElemRef);
-  int16_t         nVal;
+  gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
+  int16_t nVal;
   gslc_tsElemRef* pElemRefTmp = NULL;
 
   // From the element's ID we can determine which slider was updated.
   switch (pElem->nId) {
-    //<Slider Enums !Start!>
+      //<Slider Enums !Start!>
 
     case E_LISTSCROLL2:
       // Fetch the slider position
@@ -277,8 +273,7 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
 //<Tick Callback !Start!>
 //<Tick Callback !End!>
 
-void EggCooker::setup()
-{
+void EggCooker::setup() {
 
   Serial.begin(9600);
   delay(10);
@@ -289,14 +284,14 @@ void EggCooker::setup()
   digitalWrite(backlight, HIGH);
   pinMode(heater, OUTPUT);
   digitalWrite(heater, LOW);
-  pinMode(buzzer, OUTPUT); // Set buzzer - pin 9 as an output
+  pinMode(buzzer, OUTPUT);  // Set buzzer - pin 9 as an output
 
   //load previous preferences
   preferences.begin("my-app", false);
   int8_t temp = preferences.getChar("hardness", -1);
-  if (temp >= 0 && temp < 3)hardness = temp;
+  if (temp >= 0 && temp < 3) hardness = temp;
   temp = preferences.getChar("size", -1);
-  if (temp >= 0 && temp < 4)size = temp;
+  if (temp >= 0 && temp < 4) size = temp;
   //load wifi
   String tempssid = preferences.getString("ssid", "");
   char sssid[tempssid.length() + 1];
@@ -331,25 +326,24 @@ void EggCooker::setup()
 // -----------------------------------
 // Main event loop
 // -----------------------------------
-void EggCooker::loop()
-{
+void EggCooker::loop() {
 
   // ------------------------------------------------
   // Update GUI Elements
   // ------------------------------------------------
-  int64_t curr_secs = esp_timer_get_time() / 1000000; //get system time in seconds
-  if (timer_running && curr_secs != seconds_passed) { //check if a second has already passed, if yes and timer is running, then execute timer code
-    if (timer_seconds > 0) { //as long as timer still has time left, decrease time.
+  int64_t curr_secs = esp_timer_get_time() / 1000000;  //get system time in seconds
+  if (timer_running && curr_secs != seconds_passed) {  //check if a second has already passed, if yes and timer is running, then execute timer code
+    if (timer_seconds > 0) {                           //as long as timer still has time left, decrease time.
       timer_seconds--;
       update_timer();
-    } else { //if timer has run out, run alarm
-      digitalWrite(heater, LOW); //turn heater off
+    } else {                      //if timer has run out, run alarm
+      digitalWrite(heater, LOW);  //turn heater off
       if (seconds_passed % 2) {
-        gslc_ElemSetVisible(&m_gui, timerLabel, true); //timer visible
-        ledcAttachPin(buzzer, 0);             //buzzer channel 0
-        ledcWriteNote(0, NOTE_F, 4);    // channel 0 play note
+        gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
+        ledcAttachPin(buzzer, 0);                       //buzzer channel 0
+        ledcWriteNote(0, NOTE_F, 4);                    // channel 0 play note
       } else {
-        gslc_ElemSetVisible(&m_gui, timerLabel, false); //timer invisible
+        gslc_ElemSetVisible(&m_gui, timerLabel, false);  //timer invisible
         ledcDetachPin(buzzer);
       }
     }
@@ -363,11 +357,9 @@ void EggCooker::loop()
     int strength = WiFi.RSSI();
     if (strength > -70) {
       wifisignal = 3;
-    }
-    else if (strength > -85) {
+    } else if (strength > -85) {
       wifisignal = 2;
-    }
-    else {
+    } else {
       wifisignal = 1;
     }
   }
@@ -377,7 +369,6 @@ void EggCooker::loop()
   // Periodically call GUIslice update function
   // ------------------------------------------------
   gslc_Update(&m_gui);
-
 }
 
 // ------------------------------------------------
@@ -386,26 +377,28 @@ void EggCooker::loop()
 
 //Update GUI element that displays WiFi signal strength
 void update_wifi() {
-  if (wifisignal == 0) {
-    gslc_ElemSetVisible(&m_gui, wifiImg_off, true);
-    gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
-  } else if (wifisignal == 1) {
-    gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_33, true);
-    gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
-  } else if (wifisignal == 2) {
-    gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_66, true);
-    gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
-  } else {
-    gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
-    gslc_ElemSetVisible(&m_gui, wifiImg_100, true);
+  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) { //stop flickering if not focused on the correct page
+    if (wifisignal == 0) {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, true);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
+    } else if (wifisignal == 1) {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, true);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
+    } else if (wifisignal == 2) {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, true);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
+    } else {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, true);
+    }
   }
 }
 
@@ -435,7 +428,7 @@ void update_size() {
 
 //Update GUI element that displays timer
 void update_timer() {
-  if (!timer_running)timer_seconds = 360 + 40 * size + 180 * hardness; //don't use inputs to change the timer if timer is running
+  if (!timer_running) timer_seconds = 360 + 40 * size + 180 * hardness;  //don't use inputs to change the timer if timer is running
   int minutes = timer_seconds / 60;
   int secs = timer_seconds % 60;
   char numstr[6];
@@ -444,10 +437,10 @@ void update_timer() {
 }
 
 //find WiFi networks and put them in the GUI
-void findWiFi( void * parameter) {
+void findWiFi(void* parameter) {
   wifirunning = true;
   int n = WiFi.scanNetworks(false, false, false, 150);
-  if (n > 0)  {
+  if (n > 0) {
     Serial.print(n);
     Serial.println(" networks found");
     for (int i = 0; i < n; ++i) {

@@ -358,12 +358,14 @@ void InitGUIslice_gen()
   // create E_ELEM_BTN11 button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN11,E_PG_PASSWD,
     (gslc_tsRect){10,195,80,40},(char*)"<\xbc",0,E_BUILTIN15X24,&CbBtnCommon);
+  //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
   
   // create E_ELEM_WIFIOKBTN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFIOKBTN,E_PG_PASSWD,
     (gslc_tsRect){230,195,80,40},(char*)"OK",0,E_FREESANS14,&CbBtnCommon);
+  //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
   
-  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  //gslc_ElemSetFillEn(&m_gui,pElemRef,false);
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_ALPHA
@@ -372,8 +374,9 @@ void InitGUIslice_gen()
   sCfgTx = gslc_ElemXKeyPadCfgInit_Alpha();
   sCfgTx.sBaseCfg.nButtonSzW=16;
   sCfgTx.sBaseCfg.nButtonSzH=36;
+  sCfgTx.sBaseCfg.eLayoutDef=1;
   m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
-    &m_sKeyPadAlpha, -2, 51, 3, &sCfgTx);
+    &m_sKeyPadAlpha, -2, 51, E_DOSIS_BOOK12, &sCfgTx);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
 //<InitGUI !End!>
 
