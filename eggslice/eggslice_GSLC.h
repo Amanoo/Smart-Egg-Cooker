@@ -43,6 +43,7 @@
 #include "NotoSansBold14pt7b.h"
 #include "dosis_book12pt7b.h"
 #include "dosis_book16pt7b.h"
+#include "pijlGlyph.h"
 //<Fonts !End!>
 
 // ------------------------------------------------
@@ -73,7 +74,7 @@ enum {E_ELEM_BIGGER,E_ELEM_BTN10,E_ELEM_BTN11,E_ELEM_EGGIMG_HARD
 // Must use separate enum for fonts with MAX_FONT at end to use gslc_FontSet.
 enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12
         ,E_DOSIS_BOOK16,E_FREESANS14,E_FREESANS18,E_NOTOMONO24
-      ,E_NOTOSANSBOLD14,MAX_FONT};
+      ,E_NOTOSANSBOLD14,E_PIJLGLYPH,MAX_FONT};
 //<Enum !End!>
 
 // ------------------------------------------------
@@ -183,6 +184,7 @@ void InitGUIslice_gen()
     if (!gslc_FontSet(&m_gui,E_FREESANS18,GSLC_FONTREF_PTR,&FreeSans18pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOMONO24,GSLC_FONTREF_PTR,&NotoMono24pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOSANSBOLD14,GSLC_FONTREF_PTR,&NotoSansBold14pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_PIJLGLYPH,GSLC_FONTREF_PTR,&pijlFont,1)) { return; }
 //<Load_Fonts !End!>
 
 //<InitGUI !Start!>
@@ -330,7 +332,7 @@ void InitGUIslice_gen()
   
   // create E_ELEM_BTN10 button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN10,E_PG_WIFI,
-    (gslc_tsRect){10,195,80,40},(char*)"<\xbc",0,E_BUILTIN15X24,&CbBtnCommon);
+    (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
 
   // -----------------------------------
   // PAGE: E_PG_PASSWD
@@ -357,7 +359,7 @@ void InitGUIslice_gen()
   
   // create E_ELEM_BTN11 button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN11,E_PG_PASSWD,
-    (gslc_tsRect){10,195,80,40},(char*)"<\xbc",0,E_BUILTIN15X24,&CbBtnCommon);
+    (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
   //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
   
   // create E_ELEM_WIFIOKBTN button with text label
