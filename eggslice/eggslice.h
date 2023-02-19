@@ -19,6 +19,7 @@ void update_egg();
 void update_size();
 void update_timer();
 void findWiFi(void *);
+void stopService();
 class EggCooker : public Component, public CustomAPIDevice {
   public:
     EggCooker(Sensor *secs, TextSensor *state);
@@ -27,5 +28,4 @@ class EggCooker : public Component, public CustomAPIDevice {
   private:
     Sensor *secs_ {nullptr};
     TextSensor *state_ {nullptr};
-    void stopService();
 };

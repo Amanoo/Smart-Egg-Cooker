@@ -49,6 +49,10 @@ int timer_seconds = 0;
 int64_t seconds_passed = 0;
 
 
+//bit of anti-spam
+unsigned long lastMillis;
+
+
 // Save some element references for direct access
 //<Save_References !Start!>
 gslc_tsElemRef* eggImg_hard = NULL;
@@ -274,7 +278,8 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 //<Tick Callback !End!>
 
 //constructor
-EggCooker::EggCooker(Sensor *secs, TextSensor *state) : secs_(secs), state_(state) {}
+EggCooker::EggCooker(Sensor* secs, TextSensor* state)
+  : secs_(secs), state_(state) {}
 
 void EggCooker::setup() {
 
@@ -309,7 +314,7 @@ void EggCooker::setup() {
   }
 
   //register Home Assistant service
-  //register_service(&EggCooker::stopService, "stop_service", {});
+  //register_service(&stopService, "stop_service", {});
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
@@ -373,6 +378,19 @@ void EggCooker::loop() {
   // Periodically call GUIslice update function
   // ------------------------------------------------
   gslc_Update(&m_gui);
+
+  //send timer data to Home Assistant
+  if (lastMillis - millis() > 50) {
+    secs_->publish_state(timer_seconds);
+    if (timer_seconds == 0) {
+      state_->publish_state("Alarm");
+    } else if (timer_running) {
+      state_->publish_state("Running");
+    } else {
+      state_->publish_state("Stopped");
+    }
+  }
+  lastMillis = millis();
 }
 
 // ------------------------------------------------
@@ -381,7 +399,7 @@ void EggCooker::loop() {
 
 //Update GUI element that displays WiFi signal strength
 void update_wifi() {
-  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) { //stop flickering if not focused on the correct page
+  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) {  //stop flickering if not focused on the correct page
     if (wifisignal == 0) {
       gslc_ElemSetVisible(&m_gui, wifiImg_off, true);
       gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
@@ -453,4 +471,7 @@ void findWiFi(void* parameter) {
   }
   wifirunning = false;
   vTaskDelete(WiFiSearchTask);
+}
+void stopService(){
+
 }
