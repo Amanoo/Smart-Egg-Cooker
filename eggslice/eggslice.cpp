@@ -1,4 +1,4 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include "eggslice.h"
 //<App !Start!>
 // FILE: [eggslice.ino]
@@ -10,6 +10,7 @@
 // https://github.com/ImpulseAdventure/GUIslice
 //
 //<App !End!>
+//using namespace esphome;
 
 // ------------------------------------------------
 // Headers to include

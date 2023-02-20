@@ -1,0 +1,70 @@
+esphome:
+  includes:
+    - eggslice.h
+    - eggslice_GSLC.h
+    - FreeSans14pt7b.h
+    - NotoMono24pt7b.h
+    - NotoSansBold14pt7b.h
+    - dosis_book12pt7b.h
+    - dosis_book16pt7b.h
+    - pijlGlyph.h
+  libraries:
+    - Wire
+    - SPI
+    - FS
+    - SPIFFS
+    - Preferences
+    - adafruit/Adafruit BusIO
+    - adafruit/Adafruit GFX Library
+    - adafruit/Adafruit ILI9341
+    - thingpulse/ThingPulse XPT2046 Touch
+    - bodmer/TFT_eSPI
+    - https://github.com/Amanoo/GUIslice.git
+  name: "eggcooker"
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  
+web_server:
+  port: 80
+
+wifi:
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-eggcooker"
+    password: ""
+
+captive_portal:
+
+# Define the custom component
+custom_component:
+  - lambda: |-
+      auto my_custom = new EggCooker(id(secs),id(state));
+      App.register_component(my_custom);
+      return {my_custom};
+
+
+sensor:
+  - platform: template
+    name: State
+    device_class: duration
+    id: secs
+    unit_of_measurement: s
+    accuracy_decimals: 0
+
+text_sensor:
+  - platform: template
+    name: "Timer State"
+    id: state
+    icon: "mdi:timer-sand"
