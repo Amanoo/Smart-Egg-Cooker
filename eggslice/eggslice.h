@@ -1,5 +1,5 @@
 #include "esphome.h"
-int DebugOut(char);
+//int DebugOut(char);
 bool CbBtnCommon(void *, void *, int, int, int);
 bool CbCheckbox(void *, void *, int, bool);
 bool CbDrawScanner(void *, void *, int);

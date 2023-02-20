@@ -165,14 +165,16 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         //Get WiFi credentials, save them, connect to them
         ssid = gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
         pass = gslc_ElemGetTxtStr(&m_gui, passwordInput);
-        preferences.putString("ssid", String(ssid));
-        preferences.putString("pass", String(pass));
-        Serial.println(String(ssid));
-        Serial.println(String(pass));
+        //preferences.putString("ssid", String(ssid));
+        //preferences.putString("pass", String(pass));
+        //Serial.println(String(ssid));
+        //Serial.println(String(pass));
 
-        Serial.println(String(ssid).length());
-        WiFi.disconnect();
-        WiFi.begin(ssid, pass);
+        //Serial.println(String(ssid).length());
+        //WiFi.disconnect();
+        //WiFi.begin(ssid, pass);
+        esphome::wifi::global_wifi_component->save_wifi_sta(std::string(ssid), std::string(pass));
+        esphome::wifi::global_wifi_component->retry_connect();
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
         gslc_SetPageCur(&m_gui, E_PG_MAIN);             //go to main page
         break;
@@ -233,7 +235,7 @@ bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId) {
     case E_ELEM_WIFILISTBOX:  //Element on our WiFi list was pressed
       if (nSelId != XLISTBOX_SEL_NONE) {
         gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);  //get selected WiFi SSID
-        Serial.println(acTxt);
+        //Serial.println(acTxt);
         gslc_ElemSetTxtStr(&m_gui, wifiNameLabel, acTxt);  //put WiFi SSID as the page title
         gslc_SetPageCur(&m_gui, E_PG_PASSWD);
       }
@@ -283,8 +285,8 @@ EggCooker::EggCooker(Sensor* secs, TextSensor* state)
 
 void EggCooker::setup() {
 
-  Serial.begin(9600);
-  delay(10);
+  //Serial.begin(9600);
+  //delay(10);
   // ------------------------------------------------
   // Initialize
   // ------------------------------------------------
@@ -314,7 +316,7 @@ void EggCooker::setup() {
   }
 
   //register Home Assistant service
-  //register_service(&stopService, "stop_service", {});
+  register_service(&stopService, "stop_service", {});
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
@@ -463,8 +465,8 @@ void findWiFi(void* parameter) {
   wifirunning = true;
   int n = WiFi.scanNetworks(false, false, false, 150);
   if (n > 0) {
-    Serial.print(n);
-    Serial.println(" networks found");
+    //Serial.print(n);
+    //Serial.println(" networks found");
     for (int i = 0; i < n; ++i) {
       gslc_ElemXListboxAddItem(&m_gui, wifiListBox, WiFi.SSID(i).c_str());
     }
@@ -472,6 +474,13 @@ void findWiFi(void* parameter) {
   wifirunning = false;
   vTaskDelete(WiFiSearchTask);
 }
-void stopService(){
+void stopService() {
+  digitalWrite(heater, LOW);  //turn heater off
+  gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
+  //Reset timer
+  gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
+  ledcDetachPin(buzzer);
+  update_timer();
 
+  timer_running = false;
 }
