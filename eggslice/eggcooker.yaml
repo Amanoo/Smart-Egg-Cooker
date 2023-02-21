@@ -9,6 +9,13 @@ esphome:
     - dosis_book12pt7b.h
     - dosis_book16pt7b.h
     - pijlGlyph.h
+    - wifinone.c
+    - wifi33.c
+    - wifi66.c
+    - wifi100.c
+    - soft_egg80.c
+    - medium_egg80.c
+    - hard_egg80.c
   libraries:
     - Wire
     - SPI
