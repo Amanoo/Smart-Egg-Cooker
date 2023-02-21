@@ -1,22 +1,4 @@
 esphome:
-  includes:
-    - eggslice.h
-    - eggslice.cpp
-    - eggslice_GSLC.h
-    - eggslice_GSLC.cpp
-    - FreeSans14pt7b.h
-    - NotoMono24pt7b.h
-    - NotoSansBold14pt7b.h
-    - dosis_book12pt7b.h
-    - dosis_book16pt7b.h
-    - pijlGlyph.h
-    - wifinone.c
-    - wifi33.c
-    - wifi66.c
-    - wifi100.c
-    - soft_egg80.c
-    - medium_egg80.c
-    - hard_egg80.c
   libraries:
     - Wire
     - SPI
@@ -29,6 +11,7 @@ esphome:
     - thingpulse/ThingPulse XPT2046 Touch
     - https://github.com/Amanoo/EggCooker_TFT_eSPI.git
     - https://github.com/Amanoo/EggCooker_GUIslice.git
+    - https://github.com/Amanoo/Smart-Egg-Cooker.git
   name: "eggcooker"
 
 esp32:
