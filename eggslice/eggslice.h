@@ -1,6 +1,7 @@
 #include "esphome.h"
 
 using namespace esphome;
+using namespace api;
 using namespace sensor;
 using namespace text_sensor;
 
