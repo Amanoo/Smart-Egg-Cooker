@@ -1,0 +1,80 @@
+esphome:
+  includes:
+    - eggslice.h
+    - eggslice.cpp
+    - eggslice_GSLC.h
+    - eggslice_GSLC.cpp
+    - FreeSans14pt7b.h
+    - NotoMono24pt7b.h
+    - NotoSansBold14pt7b.h
+    - dosis_book12pt7b.h
+    - dosis_book16pt7b.h
+    - pijlGlyph.h
+    - wifinone.c
+    - wifi33.c
+    - wifi66.c
+    - wifi100.c
+    - soft_egg80.c
+    - medium_egg80.c
+    - hard_egg80.c
+  libraries:
+    - Wire
+    - SPI
+    - FS
+    - SPIFFS
+    - Preferences
+    - adafruit/Adafruit BusIO
+    - adafruit/Adafruit GFX Library
+    - adafruit/Adafruit ILI9341
+    - thingpulse/ThingPulse XPT2046 Touch
+    - https://github.com/Amanoo/EggCooker_TFT_eSPI.git
+    - https://github.com/Amanoo/EggCooker_GUIslice.git
+  name: "eggcooker"
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  
+web_server:
+  port: 80
+
+wifi:
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Esphome-eggcooker"
+    password: ""
+
+captive_portal:
+
+# Define the custom component
+custom_component:
+  - lambda: |-
+      auto my_custom = new EggCooker(id(secs),id(state));
+      App.register_component(my_custom);
+      return {my_custom};
+
+
+sensor:
+  - platform: template
+    name: "Egg Cooker Time"
+    device_class: duration
+    id: secs
+    unit_of_measurement: s
+    accuracy_decimals: 0
+    icon: "mdi:timer-sand"
+
+text_sensor:
+  - platform: template
+    name: "Egg Cooker State"
+    id: state
+    icon: "mdi:timer-cog-outline"

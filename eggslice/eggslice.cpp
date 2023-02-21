@@ -1,4 +1,4 @@
-#include <Arduino.h>
+//#include <Arduino.h>
 #include "eggslice.h"
 //<App !Start!>
 // FILE: [eggslice.ino]
@@ -10,6 +10,7 @@
 // https://github.com/ImpulseAdventure/GUIslice
 //
 //<App !End!>
+//using namespace esphome;
 
 // ------------------------------------------------
 // Headers to include
@@ -31,7 +32,7 @@ bool wifirunning = false;
 #define backlight 26
 #define buzzer 0
 
-Preferences preferences;
+Preferences myPrefs;
 
 //WiFi
 uint8_t wifisignal = 0;
@@ -50,11 +51,33 @@ int64_t seconds_passed = 0;
 
 
 //bit of anti-spam
-unsigned long lastMillis;
+uint32_t lastMillis;
+
+bool time_for_a_refresh=false;
 
 
 // Save some element references for direct access
 //<Save_References !Start!>
+gslc_tsGui                      m_gui;
+gslc_tsDriver                   m_drv;
+gslc_tsFont                     m_asFont[MAX_FONT];
+gslc_tsPage                     m_asPage[MAX_PAGE];
+
+//<GUI_Extra_Elements !Start!>
+gslc_tsElem                     m_asPage1Elem[MAX_ELEM_PG_MAIN_RAM];
+gslc_tsElemRef                  m_asPage1ElemRef[MAX_ELEM_PG_MAIN];
+gslc_tsElem                     m_asPage2Elem[MAX_ELEM_PG_WIFI_RAM];
+gslc_tsElemRef                  m_asPage2ElemRef[MAX_ELEM_PG_WIFI];
+gslc_tsElem                     m_asPage3Elem[MAX_ELEM_PG_PASSWD_RAM];
+gslc_tsElemRef                  m_asPage3ElemRef[MAX_ELEM_PG_PASSWD];
+gslc_tsElem                     m_asKeypadAlphaElem[1];
+gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
+gslc_tsXKeyPad                  m_sKeyPadAlpha;
+gslc_tsXListbox                 m_sListbox2;
+// - Note that XLISTBOX_BUF_OH_R is extra required per item
+char                            m_acListboxBuf2[94 + XLISTBOX_BUF_OH_R];
+gslc_tsXSlider                  m_sListScroll2;
+
 gslc_tsElemRef* eggImg_hard = NULL;
 gslc_tsElemRef* eggImg_med = NULL;
 gslc_tsElemRef* eggImg_soft = NULL;
@@ -115,25 +138,25 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
         if (!timer_running && size < 3) size++;
-        preferences.putChar("size", size);
+        myPrefs.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SMALLER:
         //decrease egg size if timer is not running
         if (!timer_running && size > 0) size--;
-        preferences.putChar("size", size);
+        myPrefs.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SOFTER:
         //decrease hardness if timer is not running
         if (!timer_running && hardness > 0) hardness--;
-        preferences.putChar("hardness", hardness);
+        myPrefs.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_HARDER:
         //increase hardness if timer is not running
         if (!timer_running && hardness < 2) hardness++;
-        preferences.putChar("hardness", hardness);
+        myPrefs.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_STARTBTN:
@@ -165,8 +188,8 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         //Get WiFi credentials, save them, connect to them
         ssid = gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
         pass = gslc_ElemGetTxtStr(&m_gui, passwordInput);
-        //preferences.putString("ssid", String(ssid));
-        //preferences.putString("pass", String(pass));
+        //myPrefs.putString("ssid", String(ssid));
+        //myPrefs.putString("pass", String(pass));
         //Serial.println(String(ssid));
         //Serial.println(String(pass));
 
@@ -281,7 +304,7 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 
 //constructor
 EggCooker::EggCooker(Sensor* secs, TextSensor* state)
-  : secs_(secs), state_(state) {}
+  : secs_(secs), state_(state) { }
 
 void EggCooker::setup() {
 
@@ -296,18 +319,18 @@ void EggCooker::setup() {
   digitalWrite(heater, LOW);
   pinMode(buzzer, OUTPUT);  // Set buzzer - pin 9 as an output
 
-  //load previous preferences
-  preferences.begin("my-app", false);
-  int8_t temp = preferences.getChar("hardness", -1);
+  //load previous myPrefs
+  myPrefs.begin("my-app", false);
+  int8_t temp = myPrefs.getChar("hardness", -1);
   if (temp >= 0 && temp < 3) hardness = temp;
-  temp = preferences.getChar("size", -1);
+  temp = myPrefs.getChar("size", -1);
   if (temp >= 0 && temp < 4) size = temp;
   //load wifi
-  String tempssid = preferences.getString("ssid", "");
+  String tempssid = myPrefs.getString("ssid", "");
   char sssid[tempssid.length() + 1];
   tempssid.toCharArray(sssid, sizeof(sssid));
   ssid = sssid;
-  String temppass = preferences.getString("pass", "");
+  String temppass = myPrefs.getString("pass", "");
   char ppass[temppass.length() + 1];
   temppass.toCharArray(ppass, sizeof(ppass));
   pass = ppass;
@@ -316,7 +339,7 @@ void EggCooker::setup() {
   }
 
   //register Home Assistant service
-  register_service(&stopService, "stop_service", {});
+  register_service(&EggCooker::stopService, "Egg Cooker Stop Service");
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
@@ -382,7 +405,7 @@ void EggCooker::loop() {
   gslc_Update(&m_gui);
 
   //send timer data to Home Assistant
-  if (lastMillis - millis() > 50) {
+  if (time_for_a_refresh || esphome::millis() - lastMillis  > 2000) {
     secs_->publish_state(timer_seconds);
     if (timer_seconds == 0) {
       state_->publish_state("Alarm");
@@ -391,8 +414,9 @@ void EggCooker::loop() {
     } else {
       state_->publish_state("Stopped");
     }
+    time_for_a_refresh=false;
+    lastMillis = esphome::millis();
   }
-  lastMillis = millis();
 }
 
 // ------------------------------------------------
@@ -458,6 +482,7 @@ void update_timer() {
   char numstr[6];
   sprintf(numstr, "%02d:%02d", minutes, secs);
   gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
+  time_for_a_refresh = true;
 }
 
 //find WiFi networks and put them in the GUI
@@ -474,7 +499,7 @@ void findWiFi(void* parameter) {
   wifirunning = false;
   vTaskDelete(WiFiSearchTask);
 }
-void stopService() {
+void EggCooker::stopService() {
   digitalWrite(heater, LOW);  //turn heater off
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
   //Reset timer
