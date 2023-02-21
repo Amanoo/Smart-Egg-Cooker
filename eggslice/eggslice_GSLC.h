@@ -165,6 +165,6 @@ bool CbTickScanner(void* pvGui,void* pvScope);
 // ------------------------------------------------
 // Create page elements
 // ------------------------------------------------
-extern void InitGUIslice_gen();
+void InitGUIslice_gen();
 
 #endif // end _GUISLICE_GEN_H

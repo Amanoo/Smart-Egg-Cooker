@@ -3,6 +3,7 @@ esphome:
     - eggslice.h
     - eggslice.cpp
     - eggslice_GSLC.h
+    - eggslice_GSLC.cpp
     - FreeSans14pt7b.h
     - NotoMono24pt7b.h
     - NotoSansBold14pt7b.h
