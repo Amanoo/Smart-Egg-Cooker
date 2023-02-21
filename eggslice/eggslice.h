@@ -1,4 +1,9 @@
 #include "esphome.h"
+
+using namespace esphome;
+using namespace sensor;
+using namespace text_sensor;
+
 //int DebugOut(char);
 bool CbBtnCommon(void *, void *, int, int, int);
 bool CbCheckbox(void *, void *, int, bool);

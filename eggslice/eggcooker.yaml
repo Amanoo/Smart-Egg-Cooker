@@ -1,6 +1,7 @@
 esphome:
   includes:
     - eggslice.h
+    - eggslice.cpp
     - eggslice_GSLC.h
     - FreeSans14pt7b.h
     - NotoMono24pt7b.h

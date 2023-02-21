@@ -32,7 +32,7 @@ bool wifirunning = false;
 #define backlight 26
 #define buzzer 0
 
-Preferences preferences;
+Preferences myPrefs;
 
 //WiFi
 uint8_t wifisignal = 0;
@@ -51,7 +51,7 @@ int64_t seconds_passed = 0;
 
 
 //bit of anti-spam
-unsigned long lastMillis;
+uint32_t lastMillis;
 
 
 // Save some element references for direct access
@@ -116,25 +116,25 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
         if (!timer_running && size < 3) size++;
-        preferences.putChar("size", size);
+        myPrefs.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SMALLER:
         //decrease egg size if timer is not running
         if (!timer_running && size > 0) size--;
-        preferences.putChar("size", size);
+        myPrefs.putChar("size", size);
         update_size();
         break;
       case E_ELEM_SOFTER:
         //decrease hardness if timer is not running
         if (!timer_running && hardness > 0) hardness--;
-        preferences.putChar("hardness", hardness);
+        myPrefs.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_HARDER:
         //increase hardness if timer is not running
         if (!timer_running && hardness < 2) hardness++;
-        preferences.putChar("hardness", hardness);
+        myPrefs.putChar("hardness", hardness);
         update_egg();
         break;
       case E_ELEM_STARTBTN:
@@ -166,8 +166,8 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         //Get WiFi credentials, save them, connect to them
         ssid = gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
         pass = gslc_ElemGetTxtStr(&m_gui, passwordInput);
-        //preferences.putString("ssid", String(ssid));
-        //preferences.putString("pass", String(pass));
+        //myPrefs.putString("ssid", String(ssid));
+        //myPrefs.putString("pass", String(pass));
         //Serial.println(String(ssid));
         //Serial.println(String(pass));
 
@@ -282,7 +282,7 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 
 //constructor
 EggCooker::EggCooker(Sensor* secs, TextSensor* state)
-  : secs_(secs), state_(state) {}
+  : secs_(secs), state_(state) { }
 
 void EggCooker::setup() {
 
@@ -297,18 +297,18 @@ void EggCooker::setup() {
   digitalWrite(heater, LOW);
   pinMode(buzzer, OUTPUT);  // Set buzzer - pin 9 as an output
 
-  //load previous preferences
-  preferences.begin("my-app", false);
-  int8_t temp = preferences.getChar("hardness", -1);
+  //load previous myPrefs
+  myPrefs.begin("my-app", false);
+  int8_t temp = myPrefs.getChar("hardness", -1);
   if (temp >= 0 && temp < 3) hardness = temp;
-  temp = preferences.getChar("size", -1);
+  temp = myPrefs.getChar("size", -1);
   if (temp >= 0 && temp < 4) size = temp;
   //load wifi
-  String tempssid = preferences.getString("ssid", "");
+  String tempssid = myPrefs.getString("ssid", "");
   char sssid[tempssid.length() + 1];
   tempssid.toCharArray(sssid, sizeof(sssid));
   ssid = sssid;
-  String temppass = preferences.getString("pass", "");
+  String temppass = myPrefs.getString("pass", "");
   char ppass[temppass.length() + 1];
   temppass.toCharArray(ppass, sizeof(ppass));
   pass = ppass;
@@ -383,7 +383,7 @@ void EggCooker::loop() {
   gslc_Update(&m_gui);
 
   //send timer data to Home Assistant
-  if (lastMillis - millis() > 50) {
+  if (lastMillis - esphome::millis() > 50) {
     secs_->publish_state(timer_seconds);
     if (timer_seconds == 0) {
       state_->publish_state("Alarm");
@@ -393,7 +393,7 @@ void EggCooker::loop() {
       state_->publish_state("Stopped");
     }
   }
-  lastMillis = millis();
+  lastMillis = esphome::millis();
 }
 
 // ------------------------------------------------
