@@ -66,14 +66,15 @@ custom_component:
 
 sensor:
   - platform: template
-    name: State
+    name: "Egg Cooker Time"
     device_class: duration
     id: secs
     unit_of_measurement: s
     accuracy_decimals: 0
+    icon: "mdi:timer-sand"
 
 text_sensor:
   - platform: template
-    name: "Timer State"
+    name: "Egg Cooker State"
     id: state
-    icon: "mdi:timer-sand"
+    icon: "mdi:timer-cog-outline"

@@ -53,6 +53,8 @@ int64_t seconds_passed = 0;
 //bit of anti-spam
 uint32_t lastMillis;
 
+bool time_for_a_refresh=false;
+
 
 // Save some element references for direct access
 //<Save_References !Start!>
@@ -337,7 +339,7 @@ void EggCooker::setup() {
   }
 
   //register Home Assistant service
-  register_service(&EggCooker::stopService, "stop_service");
+  register_service(&EggCooker::stopService, "Egg Cooker Stop Service");
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
@@ -403,7 +405,7 @@ void EggCooker::loop() {
   gslc_Update(&m_gui);
 
   //send timer data to Home Assistant
-  if (lastMillis - esphome::millis() > 50) {
+  if (time_for_a_refresh || esphome::millis() - lastMillis  > 2000) {
     secs_->publish_state(timer_seconds);
     if (timer_seconds == 0) {
       state_->publish_state("Alarm");
@@ -412,8 +414,9 @@ void EggCooker::loop() {
     } else {
       state_->publish_state("Stopped");
     }
+    time_for_a_refresh=false;
+    lastMillis = esphome::millis();
   }
-  lastMillis = esphome::millis();
 }
 
 // ------------------------------------------------
@@ -479,6 +482,7 @@ void update_timer() {
   char numstr[6];
   sprintf(numstr, "%02d:%02d", minutes, secs);
   gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
+  time_for_a_refresh = true;
 }
 
 //find WiFi networks and put them in the GUI
