@@ -6,6 +6,7 @@ using namespace sensor;
 using namespace text_sensor;
 
 //int DebugOut(char);
+void InitGUIslice_gen();
 bool CbBtnCommon(void *, void *, int, int, int);
 bool CbCheckbox(void *, void *, int, bool);
 bool CbDrawScanner(void *, void *, int);

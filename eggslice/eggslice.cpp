@@ -56,6 +56,26 @@ uint32_t lastMillis;
 
 // Save some element references for direct access
 //<Save_References !Start!>
+gslc_tsGui                      m_gui;
+gslc_tsDriver                   m_drv;
+gslc_tsFont                     m_asFont[MAX_FONT];
+gslc_tsPage                     m_asPage[MAX_PAGE];
+
+//<GUI_Extra_Elements !Start!>
+gslc_tsElem                     m_asPage1Elem[MAX_ELEM_PG_MAIN_RAM];
+gslc_tsElemRef                  m_asPage1ElemRef[MAX_ELEM_PG_MAIN];
+gslc_tsElem                     m_asPage2Elem[MAX_ELEM_PG_WIFI_RAM];
+gslc_tsElemRef                  m_asPage2ElemRef[MAX_ELEM_PG_WIFI];
+gslc_tsElem                     m_asPage3Elem[MAX_ELEM_PG_PASSWD_RAM];
+gslc_tsElemRef                  m_asPage3ElemRef[MAX_ELEM_PG_PASSWD];
+gslc_tsElem                     m_asKeypadAlphaElem[1];
+gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
+gslc_tsXKeyPad                  m_sKeyPadAlpha;
+gslc_tsXListbox                 m_sListbox2;
+// - Note that XLISTBOX_BUF_OH_R is extra required per item
+char                            m_acListboxBuf2[94 + XLISTBOX_BUF_OH_R];
+gslc_tsXSlider                  m_sListScroll2;
+
 gslc_tsElemRef* eggImg_hard = NULL;
 gslc_tsElemRef* eggImg_med = NULL;
 gslc_tsElemRef* eggImg_soft = NULL;
@@ -79,7 +99,227 @@ gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
   else Serial.write(ch);
   return 0;
 }*/
+void InitGUIslice_gen()
+{
+  gslc_tsElemRef* pElemRef = NULL;
 
+  if (!gslc_Init(&m_gui,&m_drv,m_asPage,MAX_PAGE,m_asFont,MAX_FONT)) { return; }
+
+  // ------------------------------------------------
+  // Load Fonts
+  // ------------------------------------------------
+//<Load_Fonts !Start!>
+    if (!gslc_FontSet(&m_gui,E_BUILTIN10X16,GSLC_FONTREF_PTR,NULL,2)) { return; }
+    if (!gslc_FontSet(&m_gui,E_BUILTIN15X24,GSLC_FONTREF_PTR,NULL,3)) { return; }
+    if (!gslc_FontSet(&m_gui,E_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK12,GSLC_FONTREF_PTR,&dosis_book12pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK16,GSLC_FONTREF_PTR,&dosis_book16pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_FREESANS14,GSLC_FONTREF_PTR,&FreeSans14pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_FREESANS18,GSLC_FONTREF_PTR,&FreeSans18pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_NOTOMONO24,GSLC_FONTREF_PTR,&NotoMono24pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_NOTOSANSBOLD14,GSLC_FONTREF_PTR,&NotoSansBold14pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_PIJLGLYPH,GSLC_FONTREF_PTR,&pijlFont,1)) { return; }
+//<Load_Fonts !End!>
+
+//<InitGUI !Start!>
+  gslc_PageAdd(&m_gui,E_PG_MAIN,m_asPage1Elem,MAX_ELEM_PG_MAIN_RAM,m_asPage1ElemRef,MAX_ELEM_PG_MAIN);
+  gslc_PageAdd(&m_gui,E_PG_WIFI,m_asPage2Elem,MAX_ELEM_PG_WIFI_RAM,m_asPage2ElemRef,MAX_ELEM_PG_WIFI);
+  gslc_PageAdd(&m_gui,E_PG_PASSWD,m_asPage3Elem,MAX_ELEM_PG_PASSWD_RAM,m_asPage3ElemRef,MAX_ELEM_PG_PASSWD);
+  gslc_PageAdd(&m_gui,E_POP_KEYPAD_ALPHA,m_asKeypadAlphaElem,1,m_asKeypadAlphaElemRef,1);  // KeyPad
+
+  // NOTE: The current page defaults to the first page added. Here we explicitly
+  //       ensure that the main page is the correct page no matter the add order.
+  gslc_SetPageCur(&m_gui,E_PG_MAIN);
+
+  // Set Background to a flat color
+  gslc_SetBkgndColor(&m_gui,GSLC_COL_BLACK);
+
+  // -----------------------------------
+  // PAGE: E_PG_MAIN
+
+
+  // Create E_ELEM_WIFIOFF using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_WIFIOFF,E_PG_MAIN,(gslc_tsRect){270,190,37,37},
+    gslc_GetImageFromProg((const unsigned char*)wifinone,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  wifiImg_off = pElemRef;
+
+  // Create E_ELEM_WIFI33 using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_WIFI33,E_PG_MAIN,(gslc_tsRect){270,190,37,37},
+    gslc_GetImageFromProg((const unsigned char*)wifi33,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  wifiImg_33 = pElemRef;
+
+  // Create E_ELEM_WIFI66 using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_WIFI66,E_PG_MAIN,(gslc_tsRect){270,190,37,37},
+    gslc_GetImageFromProg((const unsigned char*)wifi66,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  wifiImg_66 = pElemRef;
+
+  // Create E_ELEM_WIFI100 using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_WIFI100,E_PG_MAIN,(gslc_tsRect){270,190,37,37},
+    gslc_GetImageFromProg((const unsigned char*)wifi100,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  wifiImg_100 = pElemRef;
+
+  // Create E_ELEM_EGGIMG_SOFT using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_EGGIMG_SOFT,E_PG_MAIN,(gslc_tsRect){190,40,58,80},
+    gslc_GetImageFromProg((const unsigned char*)soft_egg80,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  eggImg_soft = pElemRef;
+
+  // Create E_ELEM_EGGIMG_MED using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_EGGIMG_MED,E_PG_MAIN,(gslc_tsRect){190,40,58,80},
+    gslc_GetImageFromProg((const unsigned char*)medium_egg80,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  eggImg_med = pElemRef;
+
+  // Create E_ELEM_EGGIMG_HARD using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_EGGIMG_HARD,E_PG_MAIN,(gslc_tsRect){190,40,58,80},
+    gslc_GetImageFromProg((const unsigned char*)hard_egg80,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  eggImg_hard = pElemRef;
+
+  // create E_ELEM_BIGGER button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BIGGER,E_PG_MAIN,
+    (gslc_tsRect){270,40,40,40},(char*)" +",0,E_NOTOSANSBOLD14,&CbBtnCommon);
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+
+  // create E_ELEM_SMALLER button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_SMALLER,E_PG_MAIN,
+    (gslc_tsRect){270,90,40,40},(char*)"-",0,E_NOTOSANSBOLD14,&CbBtnCommon);
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+
+    // Create E_ELEM_SIZE text label
+  static char mstr1[20] = "XL";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_SIZE,E_PG_MAIN,(gslc_tsRect){235,25,30,25},
+    mstr1, sizeof(mstr1),E_DOSIS_BOOK16);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
+  eggSizeLabel = pElemRef;
+
+  // create E_ELEM_SOFTER button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_SOFTER,E_PG_MAIN,
+    (gslc_tsRect){170,130,40,40},(char*)" <",0,E_NOTOSANSBOLD14,&CbBtnCommon);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_LEFT);
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+
+  // create E_ELEM_HARDER button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HARDER,E_PG_MAIN,
+    (gslc_tsRect){227,130,40,40},(char*)" >",0,E_NOTOSANSBOLD14,&CbBtnCommon);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_LEFT);
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+
+    // Create E_ELEM_TIMER text label
+  static char mstr2[20] = "00:00";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TIMER,E_PG_MAIN,(gslc_tsRect){12,50,150,50},
+    mstr2, sizeof(mstr2),E_NOTOMONO24);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
+  timerLabel = pElemRef;
+
+    // create E_ELEM_STARTBTN button with text label
+  static char mstr3[20] = "Start";
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_STARTBTN,E_PG_MAIN,
+    (gslc_tsRect){40,125,100,50},mstr3,sizeof(mstr3),E_FREESANS18,&CbBtnCommon);
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+  startLabel = pElemRef;
+
+  // -----------------------------------
+  // PAGE: E_PG_WIFI
+
+
+  // Create wrapping box for listbox E_ELEM_WIFILISTBOX and scrollbar
+  pElemRef = gslc_ElemCreateBox(&m_gui,GSLC_ID_AUTO,E_PG_WIFI,(gslc_tsRect){10,10,300,180});
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLACK);
+
+  // Create listbox
+  pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_WIFILISTBOX,E_PG_WIFI,&m_sListbox2,
+    (gslc_tsRect){10+2,10+4,300-4-40,180-7},E_FREESANS14,
+    (uint8_t*)&m_acListboxBuf2,sizeof(m_acListboxBuf2),0);
+  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 4, 1); // 4 rows, 1 columns
+  gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 35);
+  gslc_ElemSetTxtMarginXY(&m_gui, pElemRef, 5, 5);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLACK);
+  gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
+  gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 6,GSLC_COL_BLACK);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  wifiListBox = pElemRef;
+
+  // Create vertical scrollbar for listbox
+  pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL2,E_PG_WIFI,&m_sListScroll2,
+          (gslc_tsRect){10+300-2-40,10+4,40,180-8},0,15,0,5,true);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
+  gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
+  m_pListSlider2 = pElemRef;
+
+  // create E_ELEM_BTN10 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN10,E_PG_WIFI,
+    (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
+
+  // -----------------------------------
+  // PAGE: E_PG_PASSWD
+
+
+  // Create E_ELEM_WIFINAME text label
+  static char mstr4[32] = "";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_WIFINAME,E_PG_PASSWD,(gslc_tsRect){10,10,300,20},
+    mstr4,sizeof(mstr4),E_DOSIS_BOOK12);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
+  wifiNameLabel = pElemRef;
+
+  // Create E_ELEM_PASSINPUT text input field
+  static char m_sInputText2[101] = "";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_PASSINPUT,E_PG_PASSWD,(gslc_tsRect){10,50,300,50},
+    (char*)m_sInputText2,101,E_DOSIS_BOOK16);
+  gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  passwordInput = pElemRef;
+
+  // create E_ELEM_BTN11 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN11,E_PG_PASSWD,
+    (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
+  //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
+
+  // create E_ELEM_WIFIOKBTN button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFIOKBTN,E_PG_PASSWD,
+    (gslc_tsRect){230,195,80,40},(char*)"OK",0,E_FREESANS14,&CbBtnCommon);
+  //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
+
+  //gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+
+  // -----------------------------------
+  // PAGE: E_POP_KEYPAD_ALPHA
+
+  static gslc_tsXKeyPadCfg_Alpha sCfgTx;
+  sCfgTx = gslc_ElemXKeyPadCfgInit_Alpha();
+  sCfgTx.sBaseCfg.nButtonSzW=16;
+  sCfgTx.sBaseCfg.nButtonSzH=36;
+  sCfgTx.sBaseCfg.eLayoutDef=1;
+  m_pElemKeyPadAlpha = gslc_ElemXKeyPadCreate_Alpha(&m_gui, E_ELEM_KEYPAD_ALPHA, E_POP_KEYPAD_ALPHA,
+    &m_sKeyPadAlpha, -2, 51, E_DOSIS_BOOK12, &sCfgTx);
+  gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadAlpha, &CbKeypad);
+//<InitGUI !End!>
+
+//<Startup !Start!>
+//<Startup !End!>
+
+}
 // ------------------------------------------------
 // Callback Methods
 // ------------------------------------------------
