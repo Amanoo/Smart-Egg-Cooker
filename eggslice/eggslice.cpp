@@ -317,7 +317,7 @@ void EggCooker::setup() {
   }
 
   //register Home Assistant service
-  register_service(&stopService, "stop_service", {});
+  register_service(&EggCooker::stopService, "stop_service");
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
@@ -475,7 +475,7 @@ void findWiFi(void* parameter) {
   wifirunning = false;
   vTaskDelete(WiFiSearchTask);
 }
-void stopService() {
+void EggCooker::stopService() {
   digitalWrite(heater, LOW);  //turn heater off
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
   //Reset timer
