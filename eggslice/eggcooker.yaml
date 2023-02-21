@@ -27,8 +27,8 @@ esphome:
     - adafruit/Adafruit GFX Library
     - adafruit/Adafruit ILI9341
     - thingpulse/ThingPulse XPT2046 Touch
-    - bodmer/TFT_eSPI
-    - https://github.com/Amanoo/GUIslice.git
+    - https://github.com/Amanoo/EggCooker_TFT_eSPI.git
+    - https://github.com/Amanoo/EggCooker_GUIslice.git
   name: "eggcooker"
 
 esp32:
