@@ -1,4 +1,6 @@
 esphome:
+  includes:
+    - src
   libraries:
     - Wire
     - SPI
@@ -11,7 +13,6 @@ esphome:
     - thingpulse/ThingPulse XPT2046 Touch
     - https://github.com/Amanoo/EggCooker_TFT_eSPI.git
     - https://github.com/Amanoo/EggCooker_GUIslice.git
-    - Smart-Egg-Cooker=https://github.com/Amanoo/Smart-Egg-Cooker.git
   includes:
     - eggslice.h
   name: "eggcooker"
