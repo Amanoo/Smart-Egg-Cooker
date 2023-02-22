@@ -11,7 +11,9 @@ esphome:
     - thingpulse/ThingPulse XPT2046 Touch
     - https://github.com/Amanoo/EggCooker_TFT_eSPI.git
     - https://github.com/Amanoo/EggCooker_GUIslice.git
-    - Smart-Egg-Cooker=https://github.com/Amanoo/Smart-Egg-Cooker.git#v1.1.0
+    - Smart-Egg-Cooker=https://github.com/Amanoo/Smart-Egg-Cooker.git
+  includes:
+    - eggslice.h
   name: "eggcooker"
 
 esp32:
