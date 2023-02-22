@@ -12,7 +12,7 @@
         "name": "Amanoo"
       }
     ],
-    "license": "MIT",
+    "license": "GPL3",
     "homepage": "https://github.com/Amanoo/Smart-Egg-Cooker",
     "dependencies": {},
     "frameworks": "*",
