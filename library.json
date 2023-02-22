@@ -1,22 +1,20 @@
- {
-  "name": "Smart-Egg-Cooker",
-  "version": "1.1.0",
-  "keywords": "ESP32, tft, display, ILI9341, ESPHome",
-  "description": "Program thingy for controlling an egg cooker",
-  "repository":
-  {
-    "type": "git",
-    "url": "https://github.com/Amanoo/Smart-Egg-Cooker"
-  },
-  "authors":
-  [
-    {
-        "name": "Bodmer",
-        "email": "bodmer@anola.net",
-        "maintainer": true
-    }
-  ],
-  "frameworks": "arduino",
-  "platforms": "raspberrypi, espressif8266, espressif32, ststm32",
-  "headers": "src/eggslice.h"
-}
+{
+    "name": "smart-egg-cooker",
+    "version": "1.1.0",
+    "description": "Egg Cooker with ESPHome support",
+    "keywords": "esphome egg cooker",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Amanoo/Smart-Egg-Cooker.git"
+    },
+    "authors": [
+      {
+        "name": "Amanoo"
+      }
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/Amanoo/Smart-Egg-Cooker",
+    "dependencies": {},
+    "frameworks": "*",
+    "platforms": "*"
+  }
