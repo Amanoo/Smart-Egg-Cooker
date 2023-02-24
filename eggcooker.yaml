@@ -4,19 +4,19 @@ esphome:
     - src/eggslice.cpp
     - src/eggslice_GSLC.h
     - src/eggslice_GSLC.cpp
-    - src/FreeSans14pt7b.h
-    - src/NotoMono24pt7b.h
-    - src/NotoSansBold14pt7b.h
-    - src/dosis_book12pt7b.h
-    - src/dosis_book16pt7b.h
-    - src/pijlGlyph.h
-    - src/wifinone.c
-    - src/wifi33.c
-    - src/wifi66.c
-    - src/wifi100.c
-    - src/soft_egg80.c
-    - src/medium_egg80.c
-    - src/hard_egg80.c
+    - graphics/FreeSans14pt7b.h
+    - graphics/NotoMono24pt7b.h
+    - graphics/NotoSansBold14pt7b.h
+    - graphics/dosis_book12pt7b.h
+    - graphics/dosis_book16pt7b.h
+    - graphics/pijlGlyph.h
+    - graphics/wifinone.c
+    - graphics/wifi33.c
+    - graphics/wifi66.c
+    - graphics/wifi100.c
+    - graphics/soft_egg80.c
+    - graphics/medium_egg80.c
+    - graphics/hard_egg80.c
   libraries:
     - Wire
     - SPI
@@ -43,7 +43,7 @@ logger:
 api:
 
 ota:
-  
+
 web_server:
   port: 80
 
@@ -58,7 +58,8 @@ captive_portal:
 
 # Define the custom component
 custom_component:
-  - lambda: |-
+  - id: cooker
+    lambda: |-
       auto my_custom = new EggCooker(id(secs),id(state));
       App.register_component(my_custom);
       return {my_custom};
@@ -73,8 +74,15 @@ sensor:
     accuracy_decimals: 0
     icon: "mdi:timer-sand"
 
-text_sensor:
+switch:
   - platform: template
     name: "Egg Cooker State"
     id: state
+    restore_mode: ALWAYS_OFF
     icon: "mdi:timer-cog-outline"
+    turn_on_action:
+      - lambda: |-
+          timerOn();
+    turn_off_action:
+      - lambda: |-
+          timerOff();
