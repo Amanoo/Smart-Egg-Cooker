@@ -134,7 +134,6 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
           auto call = size_->make_call();
           call.select_next(false);
           call.perform();
-          update_size();
         }
         break;
       case E_ELEM_SMALLER:
@@ -143,7 +142,6 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
           auto call = size_->make_call();
           call.select_previous(false);
           call.perform();
-          update_size();
         }
         break;
       case E_ELEM_SOFTER:
@@ -152,7 +150,6 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
           auto call = hardness_->make_call();
           call.select_previous(false);
           call.perform();
-          update_egg();
         }
         break;
       case E_ELEM_HARDER:
@@ -161,7 +158,6 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
           auto call = hardness_->make_call();
           call.select_next(false);
           call.perform();
-          update_egg();
         }
         break;
       case E_ELEM_STARTBTN:

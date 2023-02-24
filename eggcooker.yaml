@@ -93,6 +93,9 @@ select:
     id: size
     optimistic: true
     restore_value: true
+    on_value:
+      - lambda: |-
+          update_size();
     options:
       - S
       - M
@@ -104,6 +107,9 @@ select:
     optimistic: true
     icon: "mdi:egg-outline"
     restore_value: true
+    on_value:
+      - lambda: |-
+          update_egg();
     options:
       - soft
       - medium
