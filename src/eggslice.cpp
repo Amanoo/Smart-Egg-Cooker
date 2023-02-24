@@ -53,7 +53,7 @@ int64_t seconds_passed = 0;
 //bit of anti-spam
 uint32_t lastMillis;
 
-bool time_for_a_refresh=false;
+//bool time_for_a_refresh=false;
 
 
 // Save some element references for direct access
@@ -95,6 +95,9 @@ gslc_tsElemRef* wifiNameLabel = NULL;
 gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
 //<Save_References !End!>
 
+
+Switch *state_ {nullptr};
+Sensor *secs_ {nullptr};
 // Define debug message function
 /*static int16_t DebugOut(char ch) {
   if (ch == (char)'\n') Serial.println("");
@@ -161,17 +164,10 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_STARTBTN:
         //start or stop the timer
-        timer_running = !timer_running;
         if (timer_running) {
-          digitalWrite(heater, HIGH);  //turn on heating
-          gslc_ElemSetTxtStr(&m_gui, startLabel, "Stop");
+          timerOff();
         } else {
-          digitalWrite(heater, LOW);  //turn heater off
-          gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
-          //Reset timer
-          gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
-          ledcDetachPin(buzzer);
-          update_timer();
+          timerOn();
         }
         break;
       case E_ELEM_BTN10:  //go back to mainscreen
@@ -303,8 +299,10 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 //<Tick Callback !End!>
 
 //constructor
-EggCooker::EggCooker(Sensor* secs, Switch* state)
-  : secs_(secs), state_(state) { }
+EggCooker::EggCooker(Sensor* secs, Switch* state){
+  state_=state;
+  secs_=secs;
+}
 
 void EggCooker::setup() {
 
@@ -405,28 +403,28 @@ void EggCooker::loop() {
   gslc_Update(&m_gui);
 
   //send timer data to Home Assistant
-  if (time_for_a_refresh || esphome::millis() - lastMillis  > 2000) {
+  /*if (esphome::millis() - lastMillis  > 5000) {
     secs_->publish_state(timer_seconds);
-    if (timer_seconds == 0) {
+    /*if (timer_seconds == 0) {
       state_->publish_state("Alarm");
     } else if (timer_running) {
       state_->publish_state("Running");
     } else {
       state_->publish_state("Stopped");
-    }
-    time_for_a_refresh=false;
-    lastMillis = esphome::millis();
-  }
+    }*/
+    //state_->publish_state(state_->state);
+    //lastMillis = esphome::millis();
+  //}
 }
 
-int EggCooker::send_CC_ON(){
+void timerOn(){
   timer_running = true;
   digitalWrite(heater, HIGH);  //turn on heating
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Stop");
-  return 1;
+  state_->publish_state(1);
 }
 
-int EggCooker::send_CC_OFF(){
+void timerOff(){
   timer_running = false;
   digitalWrite(heater, LOW);  //turn heater off
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
@@ -434,7 +432,7 @@ int EggCooker::send_CC_OFF(){
   gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
   ledcDetachPin(buzzer);
   update_timer();
-  return 1;
+  state_->publish_state(0);
 }
 // ------------------------------------------------
 // Create graphic elements
@@ -499,7 +497,7 @@ void update_timer() {
   char numstr[6];
   sprintf(numstr, "%02d:%02d", minutes, secs);
   gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
-  time_for_a_refresh = true;
+  secs_->publish_state(timer_seconds);
 }
 
 //find WiFi networks and put them in the GUI

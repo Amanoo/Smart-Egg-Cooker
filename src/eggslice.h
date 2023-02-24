@@ -26,15 +26,16 @@ void update_egg();
 void update_size();
 void update_timer();
 void findWiFi(void *);
+void timerOn();
+void timerOff();
 class EggCooker : public Component, public CustomAPIDevice {
   public:
     EggCooker(Sensor *secs, Switch *state);
     void setup() override;
     void loop() override;
-    int send_CC_ON();
-    int send_CC_OFF();
+    //void timerOn();
+
   private:
-    Sensor *secs_ {nullptr};
-    Switch *state_ {nullptr};
+
     //void stopService();
 };

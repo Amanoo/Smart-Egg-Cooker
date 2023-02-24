@@ -82,7 +82,7 @@ switch:
     icon: "mdi:timer-cog-outline"
     turn_on_action:
       - lambda: |-
-          static_cast<EggCooker*> (id(cooker).get_component(0))->send_CC_ON();
+          timerOn();
     turn_off_action:
       - lambda: |-
-          static_cast<EggCooker*> (id(cooker).get_component(0))->send_CC_OFF();
+          timerOff();
