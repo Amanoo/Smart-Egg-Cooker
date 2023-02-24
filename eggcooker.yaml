@@ -60,7 +60,7 @@ captive_portal:
 custom_component:
   - id: cooker
     lambda: |-
-      auto my_custom = new EggCooker(id(secs),id(state));
+      auto my_custom = new EggCooker(id(secs),id(state),id(size),id(hardness));
       App.register_component(my_custom);
       return {my_custom};
 
@@ -86,3 +86,31 @@ switch:
     turn_off_action:
       - lambda: |-
           timerOff();
+
+select:
+  - platform: template
+    name: "Egg size"
+    id: size
+    optimistic: true
+    restore_value: true
+    on_value:
+      - lambda: |-
+          update_size();
+    options:
+      - S
+      - M
+      - L
+      - XL
+  - platform: template
+    name: "Egg hardness"
+    id: hardness
+    optimistic: true
+    icon: "mdi:egg-outline"
+    restore_value: true
+    on_value:
+      - lambda: |-
+          update_egg();
+    options:
+      - soft
+      - medium
+      - hard
