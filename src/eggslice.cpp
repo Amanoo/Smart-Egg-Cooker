@@ -32,17 +32,12 @@ bool wifirunning = false;
 #define backlight 26
 #define buzzer 0
 
-Preferences myPrefs;
+//Preferences myPrefs;
 
 //WiFi
 uint8_t wifisignal = 0;
 char* ssid;
 char* pass;
-
-//egg properties
-uint8_t hardness = 1;
-uint8_t size = 2;
-char* sizeStrings[4] = { "S ", "M ", "L ", "XL" };
 
 //timer
 bool timer_running = false;
@@ -53,7 +48,11 @@ int64_t seconds_passed = 0;
 //bit of anti-spam
 uint32_t lastMillis;
 
-//bool time_for_a_refresh=false;
+
+Switch *state_ {nullptr};
+Sensor *secs_ {nullptr};
+Select *hardness_ {nullptr};
+Select *size_ {nullptr};
 
 
 // Save some element references for direct access
@@ -96,15 +95,6 @@ gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
 //<Save_References !End!>
 
 
-Switch *state_ {nullptr};
-Sensor *secs_ {nullptr};
-// Define debug message function
-/*static int16_t DebugOut(char ch) {
-  if (ch == (char)'\n') Serial.println("");
-  else Serial.write(ch);
-  return 0;
-}*/
-
 // ------------------------------------------------
 // Callback Methods
 // ------------------------------------------------
@@ -140,27 +130,39 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
-        if (!timer_running && size < 3) size++;
-        myPrefs.putChar("size", size);
-        update_size();
+        if (!timer_running){
+          auto call = size_->make_call();
+          call.select_next(false);
+          call.perform();
+          update_size();
+        }
         break;
       case E_ELEM_SMALLER:
         //decrease egg size if timer is not running
-        if (!timer_running && size > 0) size--;
-        myPrefs.putChar("size", size);
-        update_size();
+        if (!timer_running){
+          auto call = size_->make_call();
+          call.select_previous(false);
+          call.perform();
+          update_size();
+        }
         break;
       case E_ELEM_SOFTER:
         //decrease hardness if timer is not running
-        if (!timer_running && hardness > 0) hardness--;
-        myPrefs.putChar("hardness", hardness);
-        update_egg();
+        if (!timer_running){
+          auto call = hardness_->make_call();
+          call.select_previous(false);
+          call.perform();
+          update_egg();
+        }
         break;
       case E_ELEM_HARDER:
         //increase hardness if timer is not running
-        if (!timer_running && hardness < 2) hardness++;
-        myPrefs.putChar("hardness", hardness);
-        update_egg();
+        if (!timer_running){
+          auto call = hardness_->make_call();
+          call.select_next(false);
+          call.perform();
+          update_egg();
+        }
         break;
       case E_ELEM_STARTBTN:
         //start or stop the timer
@@ -184,14 +186,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         //Get WiFi credentials, save them, connect to them
         ssid = gslc_ElemGetTxtStr(&m_gui, wifiNameLabel);
         pass = gslc_ElemGetTxtStr(&m_gui, passwordInput);
-        //myPrefs.putString("ssid", String(ssid));
-        //myPrefs.putString("pass", String(pass));
-        //Serial.println(String(ssid));
-        //Serial.println(String(pass));
 
-        //Serial.println(String(ssid).length());
-        //WiFi.disconnect();
-        //WiFi.begin(ssid, pass);
         esphome::wifi::global_wifi_component->save_wifi_sta(std::string(ssid), std::string(pass));
         esphome::wifi::global_wifi_component->retry_connect();
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
@@ -298,16 +293,96 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 //<Tick Callback !Start!>
 //<Tick Callback !End!>
 
+// ------------------------------------------------
+// Create graphic elements
+// ------------------------------------------------
+
+//Update GUI element that displays WiFi signal strength
+void update_wifi() {
+  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) {  //stop flickering if not focused on the correct page
+    if (wifisignal == 0) {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, true);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
+    } else if (wifisignal == 1) {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, true);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
+    } else if (wifisignal == 2) {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, true);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
+    } else {
+      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
+      gslc_ElemSetVisible(&m_gui, wifiImg_100, true);
+    }
+  }
+}
+
+//Update GUI element that displays egg hardness
+void update_egg() {
+  if (hardness_->active_index() == 0) {
+    gslc_ElemSetVisible(&m_gui, eggImg_soft, true);
+    gslc_ElemSetVisible(&m_gui, eggImg_med, false);
+    gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
+  } else if (hardness_->active_index() == 1) {
+    gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
+    gslc_ElemSetVisible(&m_gui, eggImg_med, true);
+    gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
+  } else {
+    gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
+    gslc_ElemSetVisible(&m_gui, eggImg_med, false);
+    gslc_ElemSetVisible(&m_gui, eggImg_hard, true);
+  }
+  update_timer();
+}
+
+//Update GUI element that displays egg size
+void update_size() {
+  //auto sizeString = size_->state;
+  gslc_ElemSetTxtStr(&m_gui, eggSizeLabel, size_->state.c_str());
+  update_timer();
+}
+
+//Update GUI element that displays timer
+void update_timer() {
+  if (!timer_running) timer_seconds = 360 + 40 * size_->active_index().value()+ 180 * hardness_->active_index().value();  //don't use inputs to change the timer if timer is running
+  int minutes = timer_seconds / 60;
+  int secs = timer_seconds % 60;
+  char numstr[6];
+  sprintf(numstr, "%02d:%02d", minutes, secs);
+  gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
+  secs_->publish_state(timer_seconds);
+}
+
+//find WiFi networks and put them in the GUI
+void findWiFi(void* parameter) {
+  wifirunning = true;
+  int n = WiFi.scanNetworks(false, false, false, 150);
+  if (n > 0) {
+    for (int i = 0; i < n; ++i) { //add networks to list
+      gslc_ElemXListboxAddItem(&m_gui, wifiListBox, WiFi.SSID(i).c_str());
+    }
+  }
+  wifirunning = false;
+  vTaskDelete(WiFiSearchTask);
+}
+
 //constructor
-EggCooker::EggCooker(Sensor* secs, Switch* state){
+EggCooker::EggCooker(Sensor* secs, Switch* state, Select* size, Select* hardness){
   state_=state;
   secs_=secs;
+  size_=size;
+  hardness_=hardness;
 }
 
 void EggCooker::setup() {
 
-  //Serial.begin(9600);
-  //delay(10);
   // ------------------------------------------------
   // Initialize
   // ------------------------------------------------
@@ -316,33 +391,6 @@ void EggCooker::setup() {
   pinMode(heater, OUTPUT);
   digitalWrite(heater, LOW);
   pinMode(buzzer, OUTPUT);  // Set buzzer - pin 9 as an output
-
-  //load previous myPrefs
-  myPrefs.begin("my-app", false);
-  int8_t temp = myPrefs.getChar("hardness", -1);
-  if (temp >= 0 && temp < 3) hardness = temp;
-  temp = myPrefs.getChar("size", -1);
-  if (temp >= 0 && temp < 4) size = temp;
-  //load wifi
-  String tempssid = myPrefs.getString("ssid", "");
-  char sssid[tempssid.length() + 1];
-  tempssid.toCharArray(sssid, sizeof(sssid));
-  ssid = sssid;
-  String temppass = myPrefs.getString("pass", "");
-  char ppass[temppass.length() + 1];
-  temppass.toCharArray(ppass, sizeof(ppass));
-  pass = ppass;
-  if (ssid != "" && tempssid.length() > 0) {
-    WiFi.begin(ssid, pass);
-  }
-
-  //register Home Assistant service
-  //register_service(&EggCooker::stopService, "Egg Cooker Stop Service");
-
-  // Wait for USB Serial
-  //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
-
-  //gslc_InitDebug(&DebugOut);
 
   // ------------------------------------------------
   // Create graphic elements
@@ -402,19 +450,6 @@ void EggCooker::loop() {
   // ------------------------------------------------
   gslc_Update(&m_gui);
 
-  //send timer data to Home Assistant
-  /*if (esphome::millis() - lastMillis  > 5000) {
-    secs_->publish_state(timer_seconds);
-    /*if (timer_seconds == 0) {
-      state_->publish_state("Alarm");
-    } else if (timer_running) {
-      state_->publish_state("Running");
-    } else {
-      state_->publish_state("Stopped");
-    }*/
-    //state_->publish_state(state_->state);
-    //lastMillis = esphome::millis();
-  //}
 }
 
 void timerOn(){
@@ -434,94 +469,3 @@ void timerOff(){
   update_timer();
   state_->publish_state(0);
 }
-// ------------------------------------------------
-// Create graphic elements
-// ------------------------------------------------
-
-//Update GUI element that displays WiFi signal strength
-void update_wifi() {
-  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) {  //stop flickering if not focused on the correct page
-    if (wifisignal == 0) {
-      gslc_ElemSetVisible(&m_gui, wifiImg_off, true);
-      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
-    } else if (wifisignal == 1) {
-      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_33, true);
-      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
-    } else if (wifisignal == 2) {
-      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_66, true);
-      gslc_ElemSetVisible(&m_gui, wifiImg_100, false);
-    } else {
-      gslc_ElemSetVisible(&m_gui, wifiImg_off, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_33, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_66, false);
-      gslc_ElemSetVisible(&m_gui, wifiImg_100, true);
-    }
-  }
-}
-
-//Update GUI element that displays egg hardness
-void update_egg() {
-  if (hardness == 0) {
-    gslc_ElemSetVisible(&m_gui, eggImg_soft, true);
-    gslc_ElemSetVisible(&m_gui, eggImg_med, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
-  } else if (hardness == 1) {
-    gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_med, true);
-    gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
-  } else {
-    gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_med, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_hard, true);
-  }
-  update_timer();
-}
-
-//Update GUI element that displays egg size
-void update_size() {
-  gslc_ElemSetTxtStr(&m_gui, eggSizeLabel, sizeStrings[size]);
-  update_timer();
-}
-
-//Update GUI element that displays timer
-void update_timer() {
-  if (!timer_running) timer_seconds = 360 + 40 * size + 180 * hardness;  //don't use inputs to change the timer if timer is running
-  int minutes = timer_seconds / 60;
-  int secs = timer_seconds % 60;
-  char numstr[6];
-  sprintf(numstr, "%02d:%02d", minutes, secs);
-  gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
-  secs_->publish_state(timer_seconds);
-}
-
-//find WiFi networks and put them in the GUI
-void findWiFi(void* parameter) {
-  wifirunning = true;
-  int n = WiFi.scanNetworks(false, false, false, 150);
-  if (n > 0) {
-    //Serial.print(n);
-    //Serial.println(" networks found");
-    for (int i = 0; i < n; ++i) {
-      gslc_ElemXListboxAddItem(&m_gui, wifiListBox, WiFi.SSID(i).c_str());
-    }
-  }
-  wifirunning = false;
-  vTaskDelete(WiFiSearchTask);
-}
-/*void EggCooker::stopService() {
-  digitalWrite(heater, LOW);  //turn heater off
-  gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
-  //Reset timer
-  gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
-  ledcDetachPin(buzzer);
-  update_timer();
-
-  timer_running = false;
-}
-*/
