@@ -349,7 +349,7 @@ void update_timer() {
   int minutes = timer_seconds / 60;
   int secs = timer_seconds % 60;
   char numstr[6];
-  sprintf(numstr, "%02d:%02d", minutes, secs);
+  sprintf(numstr, " %02d:%02d  ", minutes, secs);
   gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
   secs_->publish_state(timer_seconds);
 }
