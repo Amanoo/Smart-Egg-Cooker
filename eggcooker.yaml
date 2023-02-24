@@ -43,7 +43,7 @@ logger:
 api:
 
 ota:
-  
+
 web_server:
   port: 80
 
@@ -58,7 +58,8 @@ captive_portal:
 
 # Define the custom component
 custom_component:
-  - lambda: |-
+  - id: cooker
+    lambda: |-
       auto my_custom = new EggCooker(id(secs),id(state));
       App.register_component(my_custom);
       return {my_custom};
@@ -73,8 +74,15 @@ sensor:
     accuracy_decimals: 0
     icon: "mdi:timer-sand"
 
-text_sensor:
+switch:
   - platform: template
     name: "Egg Cooker State"
     id: state
+    restore_mode: ALWAYS_OFF
     icon: "mdi:timer-cog-outline"
+    turn_on_action:
+      - lambda: |-
+          static_cast<EggCooker*> (id(cooker).get_component(0))->send_CC_ON();
+    turn_off_action:
+      - lambda: |-
+          static_cast<EggCooker*> (id(cooker).get_component(0))->send_CC_OFF();

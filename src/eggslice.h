@@ -3,7 +3,7 @@
 using namespace esphome;
 using namespace api;
 using namespace sensor;
-using namespace text_sensor;
+using namespace switch_;
 
 //int DebugOut(char);
 void InitGUIslice_gen();
@@ -28,11 +28,13 @@ void update_timer();
 void findWiFi(void *);
 class EggCooker : public Component, public CustomAPIDevice {
   public:
-    EggCooker(Sensor *secs, TextSensor *state);
+    EggCooker(Sensor *secs, Switch *state);
     void setup() override;
     void loop() override;
+    int send_CC_ON();
+    int send_CC_OFF();
   private:
     Sensor *secs_ {nullptr};
-    TextSensor *state_ {nullptr};
-    void stopService();
+    Switch *state_ {nullptr};
+    //void stopService();
 };

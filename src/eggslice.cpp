@@ -303,7 +303,7 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos) {
 //<Tick Callback !End!>
 
 //constructor
-EggCooker::EggCooker(Sensor* secs, TextSensor* state)
+EggCooker::EggCooker(Sensor* secs, Switch* state)
   : secs_(secs), state_(state) { }
 
 void EggCooker::setup() {
@@ -339,7 +339,7 @@ void EggCooker::setup() {
   }
 
   //register Home Assistant service
-  register_service(&EggCooker::stopService, "Egg Cooker Stop Service");
+  //register_service(&EggCooker::stopService, "Egg Cooker Stop Service");
 
   // Wait for USB Serial
   //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
@@ -419,6 +419,23 @@ void EggCooker::loop() {
   }
 }
 
+int EggCooker::send_CC_ON(){
+  timer_running = true;
+  digitalWrite(heater, HIGH);  //turn on heating
+  gslc_ElemSetTxtStr(&m_gui, startLabel, "Stop");
+  return 1;
+}
+
+int EggCooker::send_CC_OFF(){
+  timer_running = false;
+  digitalWrite(heater, LOW);  //turn heater off
+  gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
+  //Reset timer
+  gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
+  ledcDetachPin(buzzer);
+  update_timer();
+  return 1;
+}
 // ------------------------------------------------
 // Create graphic elements
 // ------------------------------------------------
@@ -499,7 +516,7 @@ void findWiFi(void* parameter) {
   wifirunning = false;
   vTaskDelete(WiFiSearchTask);
 }
-void EggCooker::stopService() {
+/*void EggCooker::stopService() {
   digitalWrite(heater, LOW);  //turn heater off
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
   //Reset timer
@@ -509,3 +526,4 @@ void EggCooker::stopService() {
 
   timer_running = false;
 }
+*/
