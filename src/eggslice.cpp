@@ -48,7 +48,6 @@ int64_t seconds_passed = 0;
 //bit of anti-spam
 uint32_t lastMillis;
 
-
 Switch *state_ {nullptr};
 Sensor *secs_ {nullptr};
 Select *hardness_ {nullptr};
@@ -93,7 +92,6 @@ gslc_tsElemRef* wifiListBox = NULL;
 gslc_tsElemRef* wifiNameLabel = NULL;
 gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
 //<Save_References !End!>
-
 
 // ------------------------------------------------
 // Callback Methods
@@ -465,3 +463,4 @@ void timerOff(){
   update_timer();
   state_->publish_state(0);
 }
+*/
