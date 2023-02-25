@@ -68,6 +68,8 @@ gslc_tsElem                     m_asPage2Elem[MAX_ELEM_PG_WIFI_RAM];
 gslc_tsElemRef                  m_asPage2ElemRef[MAX_ELEM_PG_WIFI];
 gslc_tsElem                     m_asPage3Elem[MAX_ELEM_PG_PASSWD_RAM];
 gslc_tsElemRef                  m_asPage3ElemRef[MAX_ELEM_PG_PASSWD];
+gslc_tsElem                     m_asPage4Elem[MAX_ELEM_PLANNER_RAM];
+gslc_tsElemRef                  m_asPage4ElemRef[MAX_ELEM_PLANNER];
 gslc_tsElem                     m_asKeypadAlphaElem[1];
 gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
@@ -75,22 +77,29 @@ gslc_tsXListbox                 m_sListbox2;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
 char                            m_acListboxBuf2[94 + XLISTBOX_BUF_OH_R];
 gslc_tsXSlider                  m_sListScroll2;
+gslc_tsXSpinner                 m_sXSpinner2;
+gslc_tsXSpinner                 m_sXSpinner3;
 
-gslc_tsElemRef* eggImg_hard = NULL;
-gslc_tsElemRef* eggImg_med = NULL;
-gslc_tsElemRef* eggImg_soft = NULL;
-gslc_tsElemRef* eggSizeLabel = NULL;
-gslc_tsElemRef* m_pListSlider2 = NULL;
-gslc_tsElemRef* passwordInput = NULL;
-gslc_tsElemRef* startLabel = NULL;
-gslc_tsElemRef* timerLabel = NULL;
-gslc_tsElemRef* wifiImg_100 = NULL;
-gslc_tsElemRef* wifiImg_33 = NULL;
-gslc_tsElemRef* wifiImg_66 = NULL;
-gslc_tsElemRef* wifiImg_off = NULL;
-gslc_tsElemRef* wifiListBox = NULL;
-gslc_tsElemRef* wifiNameLabel = NULL;
-gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
+gslc_tsElemRef* eggImg_hard       = NULL;
+gslc_tsElemRef* eggImg_med        = NULL;
+gslc_tsElemRef* eggImg_soft       = NULL;
+gslc_tsElemRef* eggSizeLabel      = NULL;
+gslc_tsElemRef* imgAlarmMain      = NULL;
+gslc_tsElemRef* m_pElemHourSpinner= NULL;
+gslc_tsElemRef* m_pElemMinuteSpinner= NULL;
+gslc_tsElemRef* m_pListSlider2    = NULL;
+gslc_tsElemRef* pImgAlarmOff      = NULL;
+gslc_tsElemRef* pImgAlarmOn       = NULL;
+gslc_tsElemRef* passwordInput     = NULL;
+gslc_tsElemRef* startLabel        = NULL;
+gslc_tsElemRef* timerLabel        = NULL;
+gslc_tsElemRef* wifiImg_100       = NULL;
+gslc_tsElemRef* wifiImg_33        = NULL;
+gslc_tsElemRef* wifiImg_66        = NULL;
+gslc_tsElemRef* wifiImg_off       = NULL;
+gslc_tsElemRef* wifiListBox       = NULL;
+gslc_tsElemRef* wifiNameLabel     = NULL;
+gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
 //<Save_References !End!>
 
 // ------------------------------------------------
@@ -166,14 +175,14 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
           timerOn();
         }
         break;
-      case E_ELEM_BTN10:  //go back to mainscreen
+      case E_ELEM_BACK1:  //go back to mainscreen
         gslc_SetPageCur(&m_gui, E_PG_MAIN);
         break;
       case E_ELEM_PASSINPUT:
         // Clicked on edit field, so show popup box and associate with this text field
         gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadAlpha, E_POP_KEYPAD_ALPHA, passwordInput);
         break;
-      case E_ELEM_BTN11:
+      case E_ELEM_BACK2:
         gslc_SetPageCur(&m_gui, E_PG_WIFI);  //go back
         break;
       case E_ELEM_WIFIOKBTN:
@@ -185,6 +194,16 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         esphome::wifi::global_wifi_component->retry_connect();
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
         gslc_SetPageCur(&m_gui, E_PG_MAIN);             //go to main page
+        break;
+      case E_ELEM_BACK3://go back to mainscreen
+        gslc_SetPageCur(&m_gui, E_PG_MAIN);
+        break;
+      case E_ELEM_TIMER://go back to mainscreen
+        if(!timer_running)gslc_SetPageCur(&m_gui, E_PLANNER);
+        break;
+      case E_ELEM_ALARM_ON:
+        break;
+      case E_ELEM_ALARM_OFF:
         break;
       //<Button Enums !End!>
       default:
@@ -225,6 +244,31 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData) {
   return true;
 }
 //<Spinner Callback !Start!>
+// Spinner Input Ready callback
+bool CbSpinner(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
+{
+  gslc_tsGui*     pGui = (gslc_tsGui*)pvGui;
+  gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
+  gslc_tsElem*    pElem = gslc_GetElemFromRef(pGui,pElemRef);
+  // NOTE: pvData is NULL
+  if (nState == XSPINNER_CB_STATE_UPDATE) {
+    // From the element's ID we can determine which input field is ready.
+    switch (pElem->nId) {
+//<Spinner Enums !Start!>
+      case E_ELEM_HOURSPINNER:
+        //TODO- Add Spinner handling code
+        // using gslc_ElemXSpinnerGetCounter(&m_gui, &m_sXSpinner2);
+        break;
+      case E_ELEM_MINUTESPINNER:
+        //TODO- Add Spinner handling code
+        // using gslc_ElemXSpinnerGetCounter(&m_gui, &m_sXSpinner3);
+        break;
+//<Spinner Enums !End!>
+      default:
+        break;
+    }
+  }
+}
 //<Spinner Callback !End!>
 bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId) {
   gslc_tsGui* pGui = (gslc_tsGui*)(pvGui);

@@ -1,4 +1,4 @@
-#include "eggslice_GSLC.h""
+#include "eggslice_GSLC.h"
 
 void InitGUIslice_gen()
 {
@@ -17,6 +17,8 @@ void InitGUIslice_gen()
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK16,GSLC_FONTREF_PTR,&dosis_book16pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_FREESANS14,GSLC_FONTREF_PTR,&FreeSans14pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_FREESANS18,GSLC_FONTREF_PTR,&FreeSans18pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_FREESANS40,GSLC_FONTREF_PTR,&FreeSans40pt7b,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_FREESANS60,GSLC_FONTREF_PTR,&FreeSans60pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOMONO24,GSLC_FONTREF_PTR,&NotoMono24pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOSANSBOLD14,GSLC_FONTREF_PTR,&NotoSansBold14pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_PIJLGLYPH,GSLC_FONTREF_PTR,&pijlFont,1)) { return; }
@@ -26,6 +28,7 @@ void InitGUIslice_gen()
   gslc_PageAdd(&m_gui,E_PG_MAIN,m_asPage1Elem,MAX_ELEM_PG_MAIN_RAM,m_asPage1ElemRef,MAX_ELEM_PG_MAIN);
   gslc_PageAdd(&m_gui,E_PG_WIFI,m_asPage2Elem,MAX_ELEM_PG_WIFI_RAM,m_asPage2ElemRef,MAX_ELEM_PG_WIFI);
   gslc_PageAdd(&m_gui,E_PG_PASSWD,m_asPage3Elem,MAX_ELEM_PG_PASSWD_RAM,m_asPage3ElemRef,MAX_ELEM_PG_PASSWD);
+  gslc_PageAdd(&m_gui,E_PLANNER,m_asPage4Elem,MAX_ELEM_PLANNER_RAM,m_asPage4ElemRef,MAX_ELEM_PLANNER);
   gslc_PageAdd(&m_gui,E_POP_KEYPAD_ALPHA,m_asKeypadAlphaElem,1,m_asKeypadAlphaElemRef,1);  // KeyPad
 
   // NOTE: The current page defaults to the first page added. Here we explicitly
@@ -122,11 +125,12 @@ void InitGUIslice_gen()
 
     // Create E_ELEM_TIMER text label
   static char mstr2[20] = "00:00";
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TIMER,E_PG_MAIN,(gslc_tsRect){12,50,150,50},
-    mstr2, sizeof(mstr2),E_NOTOMONO24);
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_TIMER,E_PG_MAIN,(gslc_tsRect){12,50,150,50},
+    mstr2, sizeof(mstr2),E_NOTOMONO24,&CbBtnCommon);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
-  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,false);
   timerLabel = pElemRef;
 
     // create E_ELEM_STARTBTN button with text label
@@ -135,6 +139,13 @@ void InitGUIslice_gen()
     (gslc_tsRect){40,125,100,50},mstr3,sizeof(mstr3),E_FREESANS18,&CbBtnCommon);
   gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
   startLabel = pElemRef;
+
+  // Create E_ELEM_MAIN_ALARMCLOCK using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_MAIN_ALARMCLOCK,E_PG_MAIN,(gslc_tsRect){10,190,40,50},
+    gslc_GetImageFromProg((const unsigned char*)wekkerdonkerblauwklein,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  imgAlarmMain = pElemRef;
+
 
   // -----------------------------------
   // PAGE: E_PG_WIFI
@@ -165,8 +176,8 @@ void InitGUIslice_gen()
   gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
   m_pListSlider2 = pElemRef;
 
-  // create E_ELEM_BTN10 button with text label
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN10,E_PG_WIFI,
+  // create E_ELEM_BACK1 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BACK1,E_PG_WIFI,
     (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
 
   // -----------------------------------
@@ -192,17 +203,55 @@ void InitGUIslice_gen()
   gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
   passwordInput = pElemRef;
 
-  // create E_ELEM_BTN11 button with text label
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN11,E_PG_PASSWD,
+  // create E_ELEM_BACK2 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BACK2,E_PG_PASSWD,
     (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
-  //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
 
   // create E_ELEM_WIFIOKBTN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFIOKBTN,E_PG_PASSWD,
     (gslc_tsRect){230,195,80,40},(char*)"OK",0,E_FREESANS14,&CbBtnCommon);
-  //gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK2,GSLC_COL_BLUE);
 
-  //gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+
+  // -----------------------------------
+  // PAGE: E_PLANNER
+
+  // Add Spinner element
+  pElemRef = gslc_ElemXSpinnerCreate(&m_gui,E_ELEM_HOURSPINNER,E_PLANNER,&m_sXSpinner2,
+    (gslc_tsRect){20,15,200,80},0,23,0,1,E_FREESANS40,40,&CbSpinner);
+  gslc_ElemXSpinnerSetChars(&m_gui,pElemRef,(uint8_t)'+',(uint8_t)'-');
+  m_pElemHourSpinner = pElemRef;
+
+  // Add Spinner element
+  pElemRef = gslc_ElemXSpinnerCreate(&m_gui,E_ELEM_MINUTESPINNER,E_PLANNER,&m_sXSpinner3,
+    (gslc_tsRect){182,15,200,80},0,59,0,5,E_FREESANS40,40,&CbSpinner);
+  gslc_ElemXSpinnerSetChars(&m_gui,pElemRef,(uint8_t)'+',(uint8_t)'-');
+  m_pElemMinuteSpinner = pElemRef;
+
+  // Create E_ELEM_TEXT10 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT10,E_PLANNER,(gslc_tsRect){150,25,25,64},
+    (char*)":",0,E_FREESANS60);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
+
+  // create E_ELEM_BACK3 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BACK3,E_PLANNER,
+    (gslc_tsRect){10,195,80,40},(char*)"",0,E_BUILTIN15X24,&CbBtnCommon);
+
+  // Create E_ELEM_ALARM_ON using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_ON,E_PLANNER,(gslc_tsRect){270,180,40,50},
+    gslc_GetImageFromProg((const unsigned char*)wekkerdonkerblauwklein,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  pImgAlarmOn = pElemRef;
+
+  // Create E_ELEM_ALARM_OFF using Image
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_OFF,E_PLANNER,(gslc_tsRect){270,180,40,50},
+    gslc_GetImageFromProg((const unsigned char*)wekkerblauwklein,GSLC_IMGREF_FMT_BMP24));
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  pImgAlarmOff = pElemRef;
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_ALPHA

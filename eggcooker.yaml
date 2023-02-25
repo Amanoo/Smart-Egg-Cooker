@@ -9,6 +9,8 @@ esphome:
     - graphics/NotoSansBold14pt7b.h
     - graphics/dosis_book12pt7b.h
     - graphics/dosis_book16pt7b.h
+    - graphics/FreeSans60pt7b.h
+    - graphics/FreeSans40pt7b.h
     - graphics/pijlGlyph.h
     - graphics/wifinone.c
     - graphics/wifi33.c
@@ -17,6 +19,9 @@ esphome:
     - graphics/soft_egg80.c
     - graphics/medium_egg80.c
     - graphics/hard_egg80.c
+    - graphics/wekkerdonkerblauwklein.c
+    - graphics/wekkerblauwklein.c
+
   libraries:
     - Wire
     - SPI
