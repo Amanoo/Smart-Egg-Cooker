@@ -219,7 +219,7 @@ void InitGUIslice_gen()
 
 
   // Create E_ELEM_TEXT10 text label
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT10,E_PLANNER,(gslc_tsRect){150,25,25,64},
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT10,E_PLANNER,(gslc_tsRect){144,20,25,64},
     (char*)":",0,E_FREESANS60);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
@@ -229,7 +229,7 @@ void InitGUIslice_gen()
     (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
 
   // Create E_ELEM_ALARM_ON using Image
-  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_ON,E_PLANNER,(gslc_tsRect){270,180,40,50},
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_ON,E_PLANNER,(gslc_tsRect){270,185,40,50},
     gslc_GetImageFromProg((const unsigned char*)wekkerdonkerblauwklein,GSLC_IMGREF_FMT_BMP24));
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetClickEn(&m_gui, pElemRef, true);
@@ -237,7 +237,7 @@ void InitGUIslice_gen()
   pImgAlarmOn = pElemRef;
 
   // Create E_ELEM_ALARM_OFF using Image
-  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_OFF,E_PLANNER,(gslc_tsRect){270,180,40,50},
+  pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_OFF,E_PLANNER,(gslc_tsRect){270,185,40,50},
     gslc_GetImageFromProg((const unsigned char*)wekkerblauwklein,GSLC_IMGREF_FMT_BMP24));
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetClickEn(&m_gui, pElemRef, true);
@@ -246,7 +246,7 @@ void InitGUIslice_gen()
 
   // Create E_ELEM_HOURINPUT numeric input field
   static char m_sInputNumber1[3] = "00";
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_HOURINPUT,E_PLANNER,(gslc_tsRect){10,10,135,91},
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_HOURINPUT,E_PLANNER,(gslc_tsRect){10,5,135,110},
     (char*)m_sInputNumber1,3,E_FREESANS60);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
   gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
@@ -258,7 +258,7 @@ void InitGUIslice_gen()
 
   // Create E_ELEM_MINUTEINPUT numeric input field
   static char m_sInputNumber2[3] = "00";
-  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_MINUTEINPUT,E_PLANNER,(gslc_tsRect){180,10,135,91},
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_MINUTEINPUT,E_PLANNER,(gslc_tsRect){180,5,135,110},
     (char*)m_sInputNumber2,3,E_FREESANS60);
   gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
@@ -269,22 +269,22 @@ void InitGUIslice_gen()
 
   // create E_ELEM_HOURUP button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURUP,E_PLANNER,
-    (gslc_tsRect){85,110,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
+    (gslc_tsRect){85,116,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
 
   // create E_ELEM_HOURDOWN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURDOWN,E_PLANNER,
-    (gslc_tsRect){10,110,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
+    (gslc_tsRect){10,116,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
 
   // create E_ELEM_MINUTEDOWN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_MINUTEDOWN,E_PLANNER,
-    (gslc_tsRect){180,110,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
+    (gslc_tsRect){180,116,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
 
   // create E_ELEM_BTNMINUTEUP button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTNMINUTEUP,E_PLANNER,
-    (gslc_tsRect){255,110,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
+    (gslc_tsRect){255,116,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
 
   // -----------------------------------
