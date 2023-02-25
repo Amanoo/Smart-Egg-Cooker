@@ -22,9 +22,9 @@
 //<Includes !Start!>
 // Include extended elements
 #include "elem/XKeyPad_Alpha.h"
+#include "elem/XKeyPad_Num.h"
 #include "elem/XListbox.h"
 #include "elem/XSlider.h"
-#include "elem/XSpinner.h"
 
 // Ensure optional features are enabled in the configuration
 //<Includes !End!>
@@ -38,6 +38,7 @@
   #error E_PROJECT_OPTIONS tab->Graphics Library should be Adafruit_GFX
 #endif
 #include <TFT_eSPI.h>
+#define DOSISBOOK48_VLW "DosisBold48"
 #include "FreeSans14pt7b.h"
 #include "NotoMono24pt7b.h"
 #include "NotoSansBold14pt7b.h"
@@ -67,19 +68,22 @@ extern "C" const unsigned short wekkerdonkerblauwklein[] PROGMEM;
 // Enumerations for pages, elements, fonts, images
 // ------------------------------------------------
 //<Enum !Start!>
-enum {E_PG_MAIN,E_PG_WIFI,E_PG_PASSWD,E_PLANNER,E_POP_KEYPAD_ALPHA};
+enum {E_PG_MAIN,E_PG_WIFI,E_PG_PASSWD,E_PLANNER,E_POP_KEYPAD_NUM,E_POP_KEYPAD_ALPHA};
 enum {E_ELEM_ALARM_OFF,E_ELEM_ALARM_ON,E_ELEM_BACK1,E_ELEM_BACK2
-      ,E_ELEM_BACK3,E_ELEM_BIGGER,E_ELEM_TIMER,E_ELEM_EGGIMG_HARD
-      ,E_ELEM_EGGIMG_MED,E_ELEM_EGGIMG_SOFT,E_ELEM_HARDER
-      ,E_ELEM_HOURSPINNER,E_ELEM_MAIN_ALARMCLOCK,E_ELEM_MINUTESPINNER
+      ,E_ELEM_BACK3,E_ELEM_BIGGER,E_ELEM_TIMER,E_ELEM_BTNMINUTEUP
+      ,E_ELEM_EGGIMG_HARD,E_ELEM_EGGIMG_MED,E_ELEM_EGGIMG_SOFT
+      ,E_ELEM_HARDER,E_ELEM_HOURDOWN,E_ELEM_HOURINPUT,E_ELEM_HOURUP
+      ,E_ELEM_MAIN_ALARMCLOCK,E_ELEM_MINUTEDOWN,E_ELEM_MINUTEINPUT
       ,E_ELEM_PASSINPUT,E_ELEM_SIZE,E_ELEM_SMALLER,E_ELEM_SOFTER
       ,E_ELEM_STARTBTN,E_ELEM_TEXT10,E_ELEM_WIFI100,E_ELEM_WIFI33
       ,E_ELEM_WIFI66,E_ELEM_WIFILISTBOX,E_ELEM_WIFINAME,E_ELEM_WIFIOFF
-      ,E_ELEM_WIFIOKBTN,E_LISTSCROLL2,E_ELEM_KEYPAD_ALPHA};
+      ,E_ELEM_WIFIOKBTN,E_LISTSCROLL2,E_ELEM_KEYPAD_NUM
+      ,E_ELEM_KEYPAD_ALPHA};
 // Must use separate enum for fonts with MAX_FONT at end to use gslc_FontSet.
 enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12
-        ,E_DOSIS_BOOK16,E_FREESANS14,E_FREESANS18,E_NOTOMONO24
-      ,E_NOTOSANSBOLD14,E_PIJLGLYPH,E_FREESANS40,E_FREESANS60,MAX_FONT};
+      ,E_DOSIS_BOOK16,E_FREESANS14,E_FREESANS18,E_NOTOMONO24
+      ,E_NOTOSANSBOLD14,E_PIJLGLYPH,E_FREESANS40,E_FREESANS60
+      ,E_DOSISBOLD48V,MAX_FONT};
 //<Enum !End!>
 
 // ------------------------------------------------
@@ -101,7 +105,7 @@ enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12
 #define MAX_ELEM_PG_PASSWD 5 // # Elems total on page
 #define MAX_ELEM_PG_PASSWD_RAM MAX_ELEM_PG_PASSWD // # Elems in RAM
 
-#define MAX_ELEM_PLANNER 6 // # Elems total on page
+#define MAX_ELEM_PLANNER 10 // # Elems total on page
 #define MAX_ELEM_PLANNER_RAM MAX_ELEM_PLANNER // # Elems in RAM
 //<ElementDefines !End!>
 
@@ -122,15 +126,16 @@ extern gslc_tsElem                     m_asPage3Elem[MAX_ELEM_PG_PASSWD_RAM];
 extern gslc_tsElemRef                  m_asPage3ElemRef[MAX_ELEM_PG_PASSWD];
 extern gslc_tsElem                     m_asPage4Elem[MAX_ELEM_PLANNER_RAM];
 extern gslc_tsElemRef                  m_asPage4ElemRef[MAX_ELEM_PLANNER];
+extern gslc_tsElem                     m_asKeypadNumElem[1];
+extern gslc_tsElemRef                  m_asKeypadNumElemRef[1];
 extern gslc_tsElem                     m_asKeypadAlphaElem[1];
 extern gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
+extern gslc_tsXKeyPad                  m_sKeyPadNum;
 extern gslc_tsXKeyPad                  m_sKeyPadAlpha;
 extern gslc_tsXListbox                 m_sListbox2;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
 extern char                            m_acListboxBuf2[94 + XLISTBOX_BUF_OH_R];
 extern gslc_tsXSlider                  m_sListScroll2;
-extern gslc_tsXSpinner                 m_sXSpinner2;
-extern gslc_tsXSpinner                 m_sXSpinner3;
 
 #define MAX_STR                 100
 
@@ -147,8 +152,8 @@ extern gslc_tsElemRef* eggImg_med;
 extern gslc_tsElemRef* eggImg_soft;
 extern gslc_tsElemRef* eggSizeLabel;
 extern gslc_tsElemRef* imgAlarmMain;
-extern gslc_tsElemRef* m_pElemHourSpinner;
-extern gslc_tsElemRef* m_pElemMinuteSpinner;
+extern gslc_tsElemRef* m_pHourInput;
+extern gslc_tsElemRef* m_pMinuteInput;
 extern gslc_tsElemRef* m_pListSlider2;
 extern gslc_tsElemRef* pImgAlarmOff;
 extern gslc_tsElemRef* pImgAlarmOn;
@@ -161,6 +166,7 @@ extern gslc_tsElemRef* wifiImg_66;
 extern gslc_tsElemRef* wifiImg_off;
 extern gslc_tsElemRef* wifiListBox;
 extern gslc_tsElemRef* wifiNameLabel;
+extern gslc_tsElemRef* m_pElemKeyPadNum;
 extern gslc_tsElemRef* m_pElemKeyPadAlpha;
 //<Extern_References !End!>
 

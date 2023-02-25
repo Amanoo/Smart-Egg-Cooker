@@ -13,6 +13,7 @@ void InitGUIslice_gen()
     if (!gslc_FontSet(&m_gui,E_BUILTIN10X16,GSLC_FONTREF_PTR,NULL,2)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN15X24,GSLC_FONTREF_PTR,NULL,3)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_DOSISBOLD48V,GSLC_FONTREF_FNAME,DOSISBOOK48_VLW,48)) { return; }
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK12,GSLC_FONTREF_PTR,&dosis_book12pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK16,GSLC_FONTREF_PTR,&dosis_book16pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_FREESANS14,GSLC_FONTREF_PTR,&FreeSans14pt7b,1)) { return; }
@@ -29,6 +30,7 @@ void InitGUIslice_gen()
   gslc_PageAdd(&m_gui,E_PG_WIFI,m_asPage2Elem,MAX_ELEM_PG_WIFI_RAM,m_asPage2ElemRef,MAX_ELEM_PG_WIFI);
   gslc_PageAdd(&m_gui,E_PG_PASSWD,m_asPage3Elem,MAX_ELEM_PG_PASSWD_RAM,m_asPage3ElemRef,MAX_ELEM_PG_PASSWD);
   gslc_PageAdd(&m_gui,E_PLANNER,m_asPage4Elem,MAX_ELEM_PLANNER_RAM,m_asPage4ElemRef,MAX_ELEM_PLANNER);
+  gslc_PageAdd(&m_gui,E_POP_KEYPAD_NUM,m_asKeypadNumElem,1,m_asKeypadNumElemRef,1);  // KeyPad
   gslc_PageAdd(&m_gui,E_POP_KEYPAD_ALPHA,m_asKeypadAlphaElem,1,m_asKeypadAlphaElemRef,1);  // KeyPad
 
   // NOTE: The current page defaults to the first page added. Here we explicitly
@@ -215,17 +217,6 @@ void InitGUIslice_gen()
   // -----------------------------------
   // PAGE: E_PLANNER
 
-  // Add Spinner element
-  pElemRef = gslc_ElemXSpinnerCreate(&m_gui,E_ELEM_HOURSPINNER,E_PLANNER,&m_sXSpinner2,
-    (gslc_tsRect){20,15,200,80},0,23,0,1,E_FREESANS40,40,&CbSpinner);
-  gslc_ElemXSpinnerSetChars(&m_gui,pElemRef,(uint8_t)'+',(uint8_t)'-');
-  m_pElemHourSpinner = pElemRef;
-
-  // Add Spinner element
-  pElemRef = gslc_ElemXSpinnerCreate(&m_gui,E_ELEM_MINUTESPINNER,E_PLANNER,&m_sXSpinner3,
-    (gslc_tsRect){182,15,200,80},0,59,0,5,E_FREESANS40,40,&CbSpinner);
-  gslc_ElemXSpinnerSetChars(&m_gui,pElemRef,(uint8_t)'+',(uint8_t)'-');
-  m_pElemMinuteSpinner = pElemRef;
 
   // Create E_ELEM_TEXT10 text label
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT10,E_PLANNER,(gslc_tsRect){150,25,25,64},
@@ -235,7 +226,7 @@ void InitGUIslice_gen()
 
   // create E_ELEM_BACK3 button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BACK3,E_PLANNER,
-    (gslc_tsRect){10,195,80,40},(char*)"",0,E_BUILTIN15X24,&CbBtnCommon);
+    (gslc_tsRect){10,195,80,40},(char*)" ",0,E_PIJLGLYPH,&CbBtnCommon);
 
   // Create E_ELEM_ALARM_ON using Image
   pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_ON,E_PLANNER,(gslc_tsRect){270,180,40,50},
@@ -252,6 +243,64 @@ void InitGUIslice_gen()
   gslc_ElemSetClickEn(&m_gui, pElemRef, true);
   gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
   pImgAlarmOff = pElemRef;
+
+  // Create E_ELEM_HOURINPUT numeric input field
+  static char m_sInputNumber1[3] = "00";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_HOURINPUT,E_PLANNER,(gslc_tsRect){10,10,135,91},
+    (char*)m_sInputNumber1,3,E_FREESANS60);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  m_pHourInput = pElemRef;
+
+  // Create E_ELEM_MINUTEINPUT numeric input field
+  static char m_sInputNumber2[3] = "00";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_MINUTEINPUT,E_PLANNER,(gslc_tsRect){180,10,135,91},
+    (char*)m_sInputNumber2,3,E_FREESANS60);
+  gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_BLUE);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  m_pMinuteInput = pElemRef;
+
+  // create E_ELEM_HOURUP button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURUP,E_PLANNER,
+    (gslc_tsRect){85,110,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+
+  // create E_ELEM_HOURDOWN button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURDOWN,E_PLANNER,
+    (gslc_tsRect){10,110,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+
+  // create E_ELEM_MINUTEDOWN button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_MINUTEDOWN,E_PLANNER,
+    (gslc_tsRect){180,110,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+
+  // create E_ELEM_BTNMINUTEUP button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTNMINUTEUP,E_PLANNER,
+    (gslc_tsRect){255,110,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+
+  // -----------------------------------
+  // PAGE: E_POP_KEYPAD_NUM
+
+  static gslc_tsXKeyPadCfg_Num sCfg;
+  sCfg = gslc_ElemXKeyPadCfgInit_Num();
+  gslc_ElemXKeyPadCfgSetFloatEn_Num (&sCfg, false);
+  gslc_ElemXKeyPadCfgSetSignEn_Num (&sCfg, false);
+  sCfg.sBaseCfg.nButtonSzW=40;
+  sCfg.sBaseCfg.nButtonSzH=40;
+  gslc_ElemXKeyPadCfgSetFloatEn_Num(&sCfg, true);
+  gslc_ElemXKeyPadCfgSetSignEn_Num(&sCfg, true);
+  m_pElemKeyPadNum = gslc_ElemXKeyPadCreate_Num(&m_gui, E_ELEM_KEYPAD_NUM, E_POP_KEYPAD_NUM,
+    &m_sKeyPadNum, -2, 110, E_DOSIS_BOOK12, &sCfg);
+  gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadNum, &CbKeypad);
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_ALPHA

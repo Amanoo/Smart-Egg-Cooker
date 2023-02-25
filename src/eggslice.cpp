@@ -70,23 +70,24 @@ gslc_tsElem                     m_asPage3Elem[MAX_ELEM_PG_PASSWD_RAM];
 gslc_tsElemRef                  m_asPage3ElemRef[MAX_ELEM_PG_PASSWD];
 gslc_tsElem                     m_asPage4Elem[MAX_ELEM_PLANNER_RAM];
 gslc_tsElemRef                  m_asPage4ElemRef[MAX_ELEM_PLANNER];
+gslc_tsElem                     m_asKeypadNumElem[1];
+gslc_tsElemRef                  m_asKeypadNumElemRef[1];
 gslc_tsElem                     m_asKeypadAlphaElem[1];
 gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
+gslc_tsXKeyPad                  m_sKeyPadNum;
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
 gslc_tsXListbox                 m_sListbox2;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
 char                            m_acListboxBuf2[94 + XLISTBOX_BUF_OH_R];
 gslc_tsXSlider                  m_sListScroll2;
-gslc_tsXSpinner                 m_sXSpinner2;
-gslc_tsXSpinner                 m_sXSpinner3;
 
 gslc_tsElemRef* eggImg_hard       = NULL;
 gslc_tsElemRef* eggImg_med        = NULL;
 gslc_tsElemRef* eggImg_soft       = NULL;
 gslc_tsElemRef* eggSizeLabel      = NULL;
 gslc_tsElemRef* imgAlarmMain      = NULL;
-gslc_tsElemRef* m_pElemHourSpinner= NULL;
-gslc_tsElemRef* m_pElemMinuteSpinner= NULL;
+gslc_tsElemRef* m_pHourInput      = NULL;
+gslc_tsElemRef* m_pMinuteInput    = NULL;
 gslc_tsElemRef* m_pListSlider2    = NULL;
 gslc_tsElemRef* pImgAlarmOff      = NULL;
 gslc_tsElemRef* pImgAlarmOn       = NULL;
@@ -99,6 +100,7 @@ gslc_tsElemRef* wifiImg_66        = NULL;
 gslc_tsElemRef* wifiImg_off       = NULL;
 gslc_tsElemRef* wifiListBox       = NULL;
 gslc_tsElemRef* wifiNameLabel     = NULL;
+gslc_tsElemRef* m_pElemKeyPadNum;
 gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
 //<Save_References !End!>
 
@@ -205,6 +207,22 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_ALARM_OFF:
         break;
+      case E_ELEM_HOURINPUT:
+        // Clicked on edit field, so show popup box and associate with this text field
+        gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadNum, E_POP_KEYPAD_NUM, m_pHourInput);
+        break;
+      case E_ELEM_MINUTEINPUT:
+        // Clicked on edit field, so show popup box and associate with this text field
+        gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadNum, E_POP_KEYPAD_NUM, m_pMinuteInput);
+        break;
+      case E_ELEM_HOURUP:
+        break;
+      case E_ELEM_HOURDOWN:
+        break;
+      case E_ELEM_MINUTEDOWN:
+        break;
+      case E_ELEM_BTNMINUTEUP:
+        break;
       //<Button Enums !End!>
       default:
         break;
@@ -215,10 +233,11 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
 //<Checkbox Callback !Start!>
 //<Checkbox Callback !End!>
 // KeyPad Input Ready callback
-bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData) {
-  gslc_tsGui* pGui = (gslc_tsGui*)pvGui;
+bool CbKeypad(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
+{
+  gslc_tsGui*     pGui     = (gslc_tsGui*)pvGui;
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
-  gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
+  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui,pElemRef);
 
   // From the pvData we can get the ID element that is ready.
   int16_t nTargetElemId = gslc_ElemXKeyPadDataTargetIdGet(pGui, pvData);
@@ -227,13 +246,21 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData) {
     // - If we have a popup active, pass the return value directly to
     //   the corresponding value field
     switch (nTargetElemId) {
-        //<Keypad Enums !Start!>
-
+//<Keypad Enums !Start!>
       case E_ELEM_PASSINPUT:
         gslc_ElemXKeyPadInputGet(pGui, passwordInput, pvData);
         gslc_PopupHide(&m_gui);
         break;
-      //<Keypad Enums !End!>
+
+      case E_ELEM_HOURINPUT:
+        gslc_ElemXKeyPadInputGet(pGui, m_pHourInput, pvData);
+        gslc_PopupHide(&m_gui);
+        break;
+      case E_ELEM_MINUTEINPUT:
+        gslc_ElemXKeyPadInputGet(pGui, m_pMinuteInput, pvData);
+        gslc_PopupHide(&m_gui);
+        break;
+//<Keypad Enums !End!>
       default:
         break;
     }
@@ -243,32 +270,8 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData) {
   }
   return true;
 }
+
 //<Spinner Callback !Start!>
-// Spinner Input Ready callback
-bool CbSpinner(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
-{
-  gslc_tsGui*     pGui = (gslc_tsGui*)pvGui;
-  gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
-  gslc_tsElem*    pElem = gslc_GetElemFromRef(pGui,pElemRef);
-  // NOTE: pvData is NULL
-  if (nState == XSPINNER_CB_STATE_UPDATE) {
-    // From the element's ID we can determine which input field is ready.
-    switch (pElem->nId) {
-//<Spinner Enums !Start!>
-      case E_ELEM_HOURSPINNER:
-        //TODO- Add Spinner handling code
-        // using gslc_ElemXSpinnerGetCounter(&m_gui, &m_sXSpinner2);
-        break;
-      case E_ELEM_MINUTESPINNER:
-        //TODO- Add Spinner handling code
-        // using gslc_ElemXSpinnerGetCounter(&m_gui, &m_sXSpinner3);
-        break;
-//<Spinner Enums !End!>
-      default:
-        break;
-    }
-  }
-}
 //<Spinner Callback !End!>
 bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId) {
   gslc_tsGui* pGui = (gslc_tsGui*)(pvGui);
