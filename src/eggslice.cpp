@@ -100,7 +100,7 @@ gslc_tsElemRef* wifiImg_66        = NULL;
 gslc_tsElemRef* wifiImg_off       = NULL;
 gslc_tsElemRef* wifiListBox       = NULL;
 gslc_tsElemRef* wifiNameLabel     = NULL;
-gslc_tsElemRef* m_pElemKeyPadNum;
+gslc_tsElemRef* m_pElemKeyPadNum  = NULL;
 gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
 //<Save_References !End!>
 
