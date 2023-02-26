@@ -69,7 +69,6 @@ custom_component:
       App.register_component(my_custom);
       return {my_custom};
 
-
 sensor:
   - platform: template
     name: "Egg Cooker Time"
