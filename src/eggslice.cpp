@@ -217,8 +217,10 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         update_planner();
         break;
       case E_ELEM_ALARM_ON:
+        plannerOff();
         break;
       case E_ELEM_ALARM_OFF:
+        plannerOn();
         break;
       case E_ELEM_HOURINPUT:
         // Clicked on edit field, so show popup box and associate with this text field
