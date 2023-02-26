@@ -42,6 +42,7 @@ char* pass;
 //timer
 int timer_seconds = 0;
 int64_t seconds_passed = 0;
+int64_t minutes_passed = 0;
 
 
 //bit of anti-spam
@@ -241,12 +242,12 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         set_planner_hours(x);
         break;
       case E_ELEM_MINUTEDOWN:
-        x = planningminutes_->state - 1;
+        x = planningminutes_->state - 5;
         if(x<0)x=59;
         set_planner_mins(x);
         break;
       case E_ELEM_BTNMINUTEUP:
-        x = planningminutes_->state + 1;
+        x = planningminutes_->state + 5;
         if(x>=60)x=0;
         set_planner_mins(x);
         break;
@@ -439,6 +440,15 @@ void update_planner() { //update GUI elements for delayed/planned on/off
     gslc_ElemSetVisible(&m_gui, pImgAlarmOn, planOnOff_->state);
     gslc_ElemSetVisible(&m_gui, pImgAlarmOff, !planOnOff_->state);
   }
+
+  char hour[3];
+  snprintf(hour, sizeof hour, "%02.0f", planninghours_->state);
+  gslc_ElemSetTxtStr(&m_gui, m_pHourInput, hour);
+
+  char minute[3];
+  snprintf(minute, sizeof minute, "%02.0f", planningminutes_->state);
+  gslc_ElemSetTxtStr(&m_gui, m_pMinuteInput, minute);
+
 }
 
 //find WiFi networks and put them in the GUI
@@ -514,6 +524,19 @@ void EggCooker::loop() {
   }
   seconds_passed = curr_secs;
 
+  int64_t curr_mins = esp_timer_get_time() / 60000000;  //get system time in minutes
+  if (planOnOff_->state && curr_mins != minutes_passed) {  //check if a minute has already passed, if yes and if planner is active, then execute planner code
+    if (planningminutes_->state > 0.1) {                           //as long as planner still has time left, decrease time.
+      planningminutes_->publish_state(planningminutes_->state-1);
+      update_planner();
+    } else if (planninghours_->state > 0.1 ){       //timer has time left but only in hours and not minutes
+      planninghours_->publish_state(planninghours_->state-1);
+      planningminutes_->publish_state(59);
+    }
+    if (planningminutes_->state < 0.1)timerOn();          //if planner has run out, start countdown
+  }
+  minutes_passed = curr_mins;
+
   //show current wifi connection
   if (!WiFi.isConnected()) {
     wifisignal = 0;
@@ -571,14 +594,10 @@ void plannerOff(){
 
 void set_planner_hours(float x){
   planninghours_->publish_state(x);
-  char hour[3];
-  snprintf(hour, sizeof hour, "%02.0f", x);
-  gslc_ElemSetTxtStr(&m_gui, m_pHourInput, hour);
+  update_planner();
 }
 
 void set_planner_mins(float x){
   planningminutes_->publish_state(x);
-  char minute[3];
-  snprintf(minute, sizeof minute, "%02.0f", x);
-  gslc_ElemSetTxtStr(&m_gui, m_pMinuteInput, minute);
+  update_planner();
 }
