@@ -146,6 +146,7 @@ void InitGUIslice_gen()
   pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_MAIN_ALARMCLOCK,E_PG_MAIN,(gslc_tsRect){10,190,40,50},
     gslc_GetImageFromProg((const unsigned char*)wekkerdonkerblauwklein,GSLC_IMGREF_FMT_BMP24));
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetVisible(&m_gui, pElemRef, false);
   imgAlarmMain = pElemRef;
 
 
@@ -230,7 +231,7 @@ void InitGUIslice_gen()
 
   // Create E_ELEM_ALARM_ON using Image
   pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_ON,E_PLANNER,(gslc_tsRect){270,185,40,50},
-    gslc_GetImageFromProg((const unsigned char*)wekkerdonkerblauwklein,GSLC_IMGREF_FMT_BMP24));
+    gslc_GetImageFromProg((const unsigned char*)wekkerblauwklein,GSLC_IMGREF_FMT_BMP24));
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetClickEn(&m_gui, pElemRef, true);
   gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
@@ -238,7 +239,7 @@ void InitGUIslice_gen()
 
   // Create E_ELEM_ALARM_OFF using Image
   pElemRef = gslc_ElemCreateImg(&m_gui,E_ELEM_ALARM_OFF,E_PLANNER,(gslc_tsRect){270,185,40,50},
-    gslc_GetImageFromProg((const unsigned char*)wekkerblauwklein,GSLC_IMGREF_FMT_BMP24));
+    gslc_GetImageFromProg((const unsigned char*)wekkerdonkerblauwklein,GSLC_IMGREF_FMT_BMP24));
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetClickEn(&m_gui, pElemRef, true);
   gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);

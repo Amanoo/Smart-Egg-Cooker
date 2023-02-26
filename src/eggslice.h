@@ -5,6 +5,7 @@ using namespace api;
 using namespace sensor;
 using namespace switch_;
 using namespace select;
+using namespace number;
 
 void InitGUIslice_gen();
 bool CbBtnCommon(void *, void *, int, int, int);
@@ -19,12 +20,17 @@ void update_wifi();
 void update_egg();
 void update_size();
 void update_timer();
+void update_planner();
 void findWiFi(void *);
 void timerOn();
 void timerOff();
+void plannerOn();
+void plannerOff();
+void set_planner_hours(float x);
+void set_planner_mins(float x);
 class EggCooker : public Component, public CustomAPIDevice {
   public:
-    EggCooker(Sensor *secs, Switch *state, Select* size, Select* hardness);
+    EggCooker(Sensor *secs, Switch *timerstate, Select* size, Select* hardness, Switch *planOnOff, Number* planninghours, Number* planningminutes);
     void setup() override;
     void loop() override;
 

@@ -40,7 +40,6 @@ char* ssid;
 char* pass;
 
 //timer
-bool timer_running = false;
 int timer_seconds = 0;
 int64_t seconds_passed = 0;
 
@@ -48,11 +47,13 @@ int64_t seconds_passed = 0;
 //bit of anti-spam
 uint32_t lastMillis;
 
-Switch *state_ {nullptr};
+Switch *timerstate_ {nullptr};
 Sensor *secs_ {nullptr};
 Select *hardness_ {nullptr};
 Select *size_ {nullptr};
-
+Switch *planOnOff_ {nullptr};
+Number *planninghours_ {nullptr};
+Number *planningminutes_ {nullptr};
 
 // Save some element references for direct access
 //<Save_References !Start!>
@@ -114,6 +115,8 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
   gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
 
+  float x;
+
   if (eTouch == GSLC_TOUCH_UP_IN) {
 
     // From the element's ID we can determine which button was pressed.
@@ -139,7 +142,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_BIGGER:
         //increase egg size if timer is not running
-        if (!timer_running){
+        if (!timerstate_->state){
           auto call = size_->make_call();
           call.select_next(false);
           call.perform();
@@ -147,7 +150,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_SMALLER:
         //decrease egg size if timer is not running
-        if (!timer_running){
+        if (!timerstate_->state){
           auto call = size_->make_call();
           call.select_previous(false);
           call.perform();
@@ -155,7 +158,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_SOFTER:
         //decrease hardness if timer is not running
-        if (!timer_running){
+        if (!timerstate_->state){
           auto call = hardness_->make_call();
           call.select_previous(false);
           call.perform();
@@ -163,7 +166,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_HARDER:
         //increase hardness if timer is not running
-        if (!timer_running){
+        if (!timerstate_->state){
           auto call = hardness_->make_call();
           call.select_next(false);
           call.perform();
@@ -171,7 +174,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_STARTBTN:
         //start or stop the timer
-        if (timer_running) {
+        if (timerstate_->state) {
           timerOff();
         } else {
           timerOn();
@@ -179,6 +182,9 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_BACK1:  //go back to mainscreen
         gslc_SetPageCur(&m_gui, E_PG_MAIN);
+        update_planner();
+        update_egg();
+        update_wifi();
         break;
       case E_ELEM_PASSINPUT:
         // Clicked on edit field, so show popup box and associate with this text field
@@ -196,12 +202,19 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         esphome::wifi::global_wifi_component->retry_connect();
         gslc_ElemSetTxtStr(&m_gui, passwordInput, "");  // empty password
         gslc_SetPageCur(&m_gui, E_PG_MAIN);             //go to main page
+        update_planner();
+        update_egg();
+        update_wifi();
         break;
       case E_ELEM_BACK3://go back to mainscreen
         gslc_SetPageCur(&m_gui, E_PG_MAIN);
+        update_planner();
+        update_egg();
+        update_wifi();
         break;
       case E_ELEM_TIMER://go back to mainscreen
-        if(!timer_running)gslc_SetPageCur(&m_gui, E_PLANNER);
+        if(!timerstate_->state)gslc_SetPageCur(&m_gui, E_PLANNER);
+        update_planner();
         break;
       case E_ELEM_ALARM_ON:
         break;
@@ -216,12 +229,24 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadNum, E_POP_KEYPAD_NUM, m_pMinuteInput);
         break;
       case E_ELEM_HOURUP:
+        x = planninghours_->state + 1;
+        if(x>=24)x=0;
+        set_planner_hours(x);
         break;
       case E_ELEM_HOURDOWN:
+        x = planninghours_->state - 1;
+        if(x<0)x=23;
+        set_planner_hours(x);
         break;
       case E_ELEM_MINUTEDOWN:
+        x = planningminutes_->state - 1;
+        if(x<0)x=59;
+        set_planner_mins(x);
         break;
       case E_ELEM_BTNMINUTEUP:
+        x = planningminutes_->state + 1;
+        if(x>=60)x=0;
+        set_planner_mins(x);
         break;
       //<Button Enums !End!>
       default:
@@ -367,20 +392,22 @@ void update_wifi() {
 
 //Update GUI element that displays egg hardness
 void update_egg() {
-  if (hardness_->active_index() == 0) {
-    gslc_ElemSetVisible(&m_gui, eggImg_soft, true);
-    gslc_ElemSetVisible(&m_gui, eggImg_med, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
-  } else if (hardness_->active_index() == 1) {
-    gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_med, true);
-    gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
-  } else {
-    gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_med, false);
-    gslc_ElemSetVisible(&m_gui, eggImg_hard, true);
+  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) {  //stop flickering if not focused on the correct page
+    if (hardness_->active_index() == 0) {
+      gslc_ElemSetVisible(&m_gui, eggImg_soft, true);
+      gslc_ElemSetVisible(&m_gui, eggImg_med, false);
+      gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
+    } else if (hardness_->active_index() == 1) {
+      gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
+      gslc_ElemSetVisible(&m_gui, eggImg_med, true);
+      gslc_ElemSetVisible(&m_gui, eggImg_hard, false);
+    } else {
+      gslc_ElemSetVisible(&m_gui, eggImg_soft, false);
+      gslc_ElemSetVisible(&m_gui, eggImg_med, false);
+      gslc_ElemSetVisible(&m_gui, eggImg_hard, true);
+    }
+    update_timer();
   }
-  update_timer();
 }
 
 //Update GUI element that displays egg size
@@ -392,13 +419,24 @@ void update_size() {
 
 //Update GUI element that displays timer
 void update_timer() {
-  if (!timer_running) timer_seconds = 360 + 40 * size_->active_index().value()+ 180 * hardness_->active_index().value();  //don't use inputs to change the timer if timer is running
+  if (!timerstate_->state) timer_seconds = 360 + 40 * size_->active_index().value()+ 180 * hardness_->active_index().value();  //don't use inputs to change the timer if timer is running
   int minutes = timer_seconds / 60;
   int secs = timer_seconds % 60;
   char numstr[6];
   sprintf(numstr, " %02d:%02d  ", minutes, secs);
   gslc_ElemSetTxtStr(&m_gui, timerLabel, numstr);
   secs_->publish_state(timer_seconds);
+}
+
+void update_planner() { //update GUI elements for delayed/planned on/off
+  if (gslc_GetPageCur(&m_gui) == E_PG_MAIN) {  //stop flickering if not focused on the correct page
+    gslc_ElemSetVisible(&m_gui, imgAlarmMain, planOnOff_->state);
+  }
+
+  if (gslc_GetPageCur(&m_gui) == E_PLANNER) {  //stop flickering if not focused on the correct page
+    gslc_ElemSetVisible(&m_gui, pImgAlarmOn, planOnOff_->state);
+    gslc_ElemSetVisible(&m_gui, pImgAlarmOff, !planOnOff_->state);
+  }
 }
 
 //find WiFi networks and put them in the GUI
@@ -415,11 +453,14 @@ void findWiFi(void* parameter) {
 }
 
 //constructor
-EggCooker::EggCooker(Sensor* secs, Switch* state, Select* size, Select* hardness){
-  state_=state;
+EggCooker::EggCooker(Sensor* secs, Switch* timerstate, Select* size, Select* hardness, Switch *planOnOff, Number* planninghours, Number* planningminutes){
+  timerstate_=timerstate;
   secs_=secs;
   size_=size;
   hardness_=hardness;
+  planOnOff_=planOnOff;
+  planninghours_=planninghours;
+  planningminutes_=planningminutes;
 }
 
 void EggCooker::setup() {
@@ -453,7 +494,7 @@ void EggCooker::loop() {
   // Update GUI Elements
   // ------------------------------------------------
   int64_t curr_secs = esp_timer_get_time() / 1000000;  //get system time in seconds
-  if (timer_running && curr_secs != seconds_passed) {  //check if a second has already passed, if yes and timer is running, then execute timer code
+  if (timerstate_->state && curr_secs != seconds_passed) {  //check if a second has already passed, if yes and timer is running, then execute timer code
     if (timer_seconds > 0) {                           //as long as timer still has time left, decrease time.
       timer_seconds--;
       update_timer();
@@ -493,20 +534,49 @@ void EggCooker::loop() {
 
 }
 
+//start cooking
 void timerOn(){
-  timer_running = true;
   digitalWrite(heater, HIGH);  //turn on heating
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Stop");
-  state_->publish_state(1);
+  timerstate_->publish_state(1);
+  plannerOff();
 }
 
+//stop cooking
 void timerOff(){
-  timer_running = false;
   digitalWrite(heater, LOW);  //turn heater off
   gslc_ElemSetTxtStr(&m_gui, startLabel, "Start");
   //Reset timer
   gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
   ledcDetachPin(buzzer);
+  timerstate_->publish_state(0);
   update_timer();
-  state_->publish_state(0);
+}
+
+//start delayed cooking
+void plannerOn(){
+  if(!timerstate_->state){
+    planOnOff_->publish_state(true);
+    update_planner();
+  }
+}
+
+//stop delayed cooking
+void plannerOff(){
+  planOnOff_->publish_state(false);
+  update_planner();
+}
+
+void set_planner_hours(float x){
+  planninghours_->publish_state(x);
+  char hour[3];
+  snprintf(hour, sizeof hour, "%02.0f", x);
+  gslc_ElemSetTxtStr(&m_gui, m_pHourInput, hour);
+}
+
+void set_planner_mins(float x){
+  planningminutes_->publish_state(x);
+  char minute[3];
+  snprintf(minute, sizeof minute, "%02.0f", x);
+  gslc_ElemSetTxtStr(&m_gui, m_pMinuteInput, minute);
 }
