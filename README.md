@@ -41,11 +41,6 @@ Other peripherals:
 * Buzzer on pin 0
 * ![heat element switching](heatelementcircuit.png)
 
-## TODO
-* Use preferences library to save last used settings and WiFi credentials
-* WiFi
-* Home Assistant integration
-
 ## Licence
 Project released under GPL3
 
