@@ -8,9 +8,10 @@ const unsigned char pijlBitmap[] PROGMEM = {
 };
 
 const GFXglyph pijlGlyphs[] PROGMEM = {
-  { 0, 52, 27, 0, 0, -14 }  // 'pijl'
+  { 0, 52, 27, 0, 0, -14 },  // ' ' acting as 'arrow'
 };
-
+// - at 176, 221 bytes
+// + at 397, 221 bytes
 const GFXfont pijlFont PROGMEM = {
   (uint8_t *)pijlBitmap,
   (GFXglyph *)pijlGlyphs,

@@ -9,7 +9,10 @@ esphome:
     - graphics/NotoSansBold14pt7b.h
     - graphics/dosis_book12pt7b.h
     - graphics/dosis_book16pt7b.h
+    - graphics/FreeSans60pt7b.h
+    - graphics/FreeSans40pt7b.h
     - graphics/pijlGlyph.h
+    - graphics/plusminus.h
     - graphics/wifinone.c
     - graphics/wifi33.c
     - graphics/wifi66.c
@@ -17,6 +20,9 @@ esphome:
     - graphics/soft_egg80.c
     - graphics/medium_egg80.c
     - graphics/hard_egg80.c
+    - graphics/wekkerdonkerblauwklein.c
+    - graphics/wekkerblauwklein.c
+
   libraries:
     - Wire
     - SPI
@@ -60,10 +66,9 @@ captive_portal:
 custom_component:
   - id: cooker
     lambda: |-
-      auto my_custom = new EggCooker(id(secs),id(state),id(size),id(hardness));
+      auto my_custom = new EggCooker(id(secs),id(timerstate),id(size),id(hardness),id(planOnOff),id(planninghours),id(planningminutes));
       App.register_component(my_custom);
       return {my_custom};
-
 
 sensor:
   - platform: template
@@ -77,7 +82,7 @@ sensor:
 switch:
   - platform: template
     name: "Egg Cooker State"
-    id: state
+    id: timerstate
     restore_mode: ALWAYS_OFF
     icon: "mdi:timer-cog-outline"
     turn_on_action:
@@ -86,13 +91,26 @@ switch:
     turn_off_action:
       - lambda: |-
           timerOff();
+  - platform: template
+    name: "Egg Cooker Planning on/off"
+    id: planOnOff
+    restore_mode: ALWAYS_OFF
+    icon: "mdi:calendar-start"
+    turn_on_action:
+      - lambda: |-
+          plannerOn();
+    turn_off_action:
+      - lambda: |-
+          plannerOff();
 
 select:
   - platform: template
     name: "Egg size"
     id: size
-    optimistic: true
     restore_value: true
+    set_action:
+      - lambda: |-
+          if(!id(timerstate).state)id(size).publish_state(x);
     on_value:
       - lambda: |-
           update_size();
@@ -104,9 +122,11 @@ select:
   - platform: template
     name: "Egg hardness"
     id: hardness
-    optimistic: true
     icon: "mdi:egg-outline"
     restore_value: true
+    set_action:
+      - lambda: |-
+          if(!id(timerstate).state)id(hardness).publish_state(x);
     on_value:
       - lambda: |-
           update_egg();
@@ -114,3 +134,27 @@ select:
       - soft
       - medium
       - hard
+
+number:
+  - platform: template
+    name: "Egg Cooker Planning Hours"
+    unit_of_measurement: h
+    min_value: 0
+    max_value: 30
+    step: 1
+    id: planninghours
+    icon: "mdi:calendar-clock"
+    set_action:
+      - lambda: |-
+          set_planner_hours(x);
+  - platform: template
+    name: "Egg Cooker Planning Minutes"
+    unit_of_measurement: min
+    min_value: 0
+    max_value: 59
+    step: 1
+    id: planningminutes
+    icon: "mdi:calendar-clock"
+    set_action:
+      - lambda: |-
+          set_planner_mins(x);
