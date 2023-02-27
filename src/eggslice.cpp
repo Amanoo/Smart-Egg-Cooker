@@ -243,7 +243,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_MINUTEDOWN:
         x = planningminutes_->state - 5;
-        if(x<0)x=59;
+        if(x<0)x=55;
         set_planner_mins(x);
         break;
       case E_ELEM_BTNMINUTEUP:
