@@ -38,13 +38,13 @@
   #error E_PROJECT_OPTIONS tab->Graphics Library should be Adafruit_GFX
 #endif
 #include <TFT_eSPI.h>
-#define DOSISBOOK48_VLW "DosisBold48"
 #include "FreeSans14pt7b.h"
 #include "NotoMono24pt7b.h"
 #include "NotoSansBold14pt7b.h"
 #include "dosis_book12pt7b.h"
 #include "dosis_book16pt7b.h"
 #include "pijlGlyph.h"
+#include "plusminus.h"
 #include "FreeSans40pt7b.h"
 #include "FreeSans60pt7b.h"
 //<Fonts !End!>
@@ -83,7 +83,7 @@ enum {E_ELEM_ALARM_OFF,E_ELEM_ALARM_ON,E_ELEM_BACK1,E_ELEM_BACK2
 enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN5X8,E_DOSIS_BOOK12
       ,E_DOSIS_BOOK16,E_FREESANS14,E_FREESANS18,E_NOTOMONO24
       ,E_NOTOSANSBOLD14,E_PIJLGLYPH,E_FREESANS40,E_FREESANS60
-      ,E_DOSISBOLD48V,MAX_FONT};
+      ,E_PLUSMINUS,MAX_FONT};
 //<Enum !End!>
 
 // ------------------------------------------------

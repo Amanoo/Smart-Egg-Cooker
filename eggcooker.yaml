@@ -12,6 +12,7 @@ esphome:
     - graphics/FreeSans60pt7b.h
     - graphics/FreeSans40pt7b.h
     - graphics/pijlGlyph.h
+    - graphics/plusminus.h
     - graphics/wifinone.c
     - graphics/wifi33.c
     - graphics/wifi66.c

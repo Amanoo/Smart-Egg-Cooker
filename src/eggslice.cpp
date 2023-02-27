@@ -233,12 +233,12 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_HOURUP:
         x = planninghours_->state + 1;
-        if(x>=24)x=0;
+        if(x>30.5)x=0;
         set_planner_hours(x);
         break;
       case E_ELEM_HOURDOWN:
         x = planninghours_->state - 1;
-        if(x<0)x=23;
+        if(x<0)x=30;
         set_planner_hours(x);
         break;
       case E_ELEM_MINUTEDOWN:
@@ -248,7 +248,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         break;
       case E_ELEM_BTNMINUTEUP:
         x = planningminutes_->state + 5;
-        if(x>=60)x=0;
+        if(x>=59.5)x=0;
         set_planner_mins(x);
         break;
       //<Button Enums !End!>
@@ -273,6 +273,8 @@ bool CbKeypad(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
     // User clicked on Enter to leave popup
     // - If we have a popup active, pass the return value directly to
     //   the corresponding value field
+    char * input;
+    float inputfloat;
     switch (nTargetElemId) {
 //<Keypad Enums !Start!>
       case E_ELEM_PASSINPUT:
@@ -283,10 +285,18 @@ bool CbKeypad(void* pvGui, void *pvElemRef, int16_t nState, void* pvData)
       case E_ELEM_HOURINPUT:
         gslc_ElemXKeyPadInputGet(pGui, m_pHourInput, pvData);
         gslc_PopupHide(&m_gui);
+        input = gslc_ElemGetTxtStr(pGui, m_pHourInput);
+        inputfloat=atof(input);
+        if(inputfloat>30)inputfloat=30;
+        set_planner_hours(inputfloat);
         break;
       case E_ELEM_MINUTEINPUT:
         gslc_ElemXKeyPadInputGet(pGui, m_pMinuteInput, pvData);
         gslc_PopupHide(&m_gui);
+        input = gslc_ElemGetTxtStr(pGui, m_pMinuteInput);
+        inputfloat=atof(input);
+        if(inputfloat>59)inputfloat=59;
+        set_planner_mins(inputfloat);
         break;
 //<Keypad Enums !End!>
       default:

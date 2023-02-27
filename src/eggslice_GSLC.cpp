@@ -13,7 +13,6 @@ void InitGUIslice_gen()
     if (!gslc_FontSet(&m_gui,E_BUILTIN10X16,GSLC_FONTREF_PTR,NULL,2)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN15X24,GSLC_FONTREF_PTR,NULL,3)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1)) { return; }
-    if (!gslc_FontSet(&m_gui,E_DOSISBOLD48V,GSLC_FONTREF_FNAME,DOSISBOOK48_VLW,48)) { return; }
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK12,GSLC_FONTREF_PTR,&dosis_book12pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_DOSIS_BOOK16,GSLC_FONTREF_PTR,&dosis_book16pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_FREESANS14,GSLC_FONTREF_PTR,&FreeSans14pt7b,1)) { return; }
@@ -23,6 +22,7 @@ void InitGUIslice_gen()
     if (!gslc_FontSet(&m_gui,E_NOTOMONO24,GSLC_FONTREF_PTR,&NotoMono24pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOSANSBOLD14,GSLC_FONTREF_PTR,&NotoSansBold14pt7b,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_PIJLGLYPH,GSLC_FONTREF_PTR,&pijlFont,1)) { return; }
+    if (!gslc_FontSet(&m_gui,E_PLUSMINUS,GSLC_FONTREF_PTR,&plusminFont,1)) { return; }
 //<Load_Fonts !End!>
 
 //<InitGUI !Start!>
@@ -268,37 +268,32 @@ void InitGUIslice_gen()
   gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
   m_pMinuteInput = pElemRef;
 
-  // create E_ELEM_HOURUP button with text label
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURUP,E_PLANNER,
-    (gslc_tsRect){85,116,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
-  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
-
   // create E_ELEM_HOURDOWN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURDOWN,E_PLANNER,
-    (gslc_tsRect){10,116,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
-  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+    (gslc_tsRect){10,116,60,60},(char*)" ",0,E_PLUSMINUS,&CbBtnCommon);
+  //gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_TOP_MID);
+
+  // create E_ELEM_HOURUP button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_HOURUP,E_PLANNER,
+    (gslc_tsRect){85,116,60,60},(char*)"!",0,E_PLUSMINUS,&CbBtnCommon);
 
   // create E_ELEM_MINUTEDOWN button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_MINUTEDOWN,E_PLANNER,
-    (gslc_tsRect){180,116,60,60},(char*)"↓",0,E_DOSISBOLD48V,&CbBtnCommon);
-  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+    (gslc_tsRect){180,116,60,60},(char*)" ",0,E_PLUSMINUS,&CbBtnCommon);
 
   // create E_ELEM_BTNMINUTEUP button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTNMINUTEUP,E_PLANNER,
-    (gslc_tsRect){255,116,60,60},(char*)"↑",0,E_DOSISBOLD48V,&CbBtnCommon);
-  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_BOT_MID);
+    (gslc_tsRect){255,116,60,60},(char*)"!",0,E_PLUSMINUS,&CbBtnCommon);
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_NUM
 
   static gslc_tsXKeyPadCfg_Num sCfg;
   sCfg = gslc_ElemXKeyPadCfgInit_Num();
-  gslc_ElemXKeyPadCfgSetFloatEn_Num (&sCfg, false);
-  gslc_ElemXKeyPadCfgSetSignEn_Num (&sCfg, false);
   sCfg.sBaseCfg.nButtonSzW=40;
   sCfg.sBaseCfg.nButtonSzH=40;
-  gslc_ElemXKeyPadCfgSetFloatEn_Num(&sCfg, true);
-  gslc_ElemXKeyPadCfgSetSignEn_Num(&sCfg, true);
+  gslc_ElemXKeyPadCfgSetFloatEn_Num(&sCfg, false);
+  gslc_ElemXKeyPadCfgSetSignEn_Num(&sCfg, false);
   m_pElemKeyPadNum = gslc_ElemXKeyPadCreate_Num(&m_gui, E_ELEM_KEYPAD_NUM, E_POP_KEYPAD_NUM,
     &m_sKeyPadNum, -2, 110, E_DOSIS_BOOK12, &sCfg);
   gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadNum, &CbKeypad);
