@@ -38,7 +38,7 @@ Display:
 * T_CLK/SCK 18
 
 Other peripherals:
-* Buzzer on pin 0
+* Buzzer on pins 16 and 17
 * ![heat element switching](heatelementcircuit.png)
 
 ## Licence

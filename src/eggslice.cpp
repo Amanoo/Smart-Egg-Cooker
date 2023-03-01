@@ -30,7 +30,8 @@ bool wifirunning = false;
 //GPIO
 #define heater 13
 #define backlight 26
-#define buzzer 0
+#define buzzer 16
+#define buzzer2 17
 
 //Preferences myPrefs;
 
@@ -494,7 +495,8 @@ void EggCooker::setup() {
   digitalWrite(backlight, HIGH);
   pinMode(heater, OUTPUT);
   digitalWrite(heater, LOW);
-  pinMode(buzzer, OUTPUT);  // Set buzzer - pin 9 as an output
+  pinMode(buzzer, OUTPUT);  // Set buzzer pin as an output
+  pinMode(buzzer2, OUTPUT);  // Set buzzer pin  as an output
 
   // ------------------------------------------------
   // Create graphic elements
@@ -525,10 +527,12 @@ void EggCooker::loop() {
       if (seconds_passed % 2) {
         gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
         ledcAttachPin(buzzer, 0);                       //buzzer channel 0
+        ledcAttachPin(buzzer2, 0);                       //buzzer channel 0
         ledcWriteNote(0, NOTE_F, 4);                    // channel 0 play note
       } else {
         gslc_ElemSetVisible(&m_gui, timerLabel, false);  //timer invisible
         ledcDetachPin(buzzer);
+        ledcDetachPin(buzzer2);
       }
     }
   }
@@ -584,6 +588,7 @@ void timerOff(){
   //Reset timer
   gslc_ElemSetVisible(&m_gui, timerLabel, true);  //timer visible
   ledcDetachPin(buzzer);
+  ledcDetachPin(buzzer2);
   timerstate_->publish_state(0);
   update_timer();
 }
