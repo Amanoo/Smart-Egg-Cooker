@@ -27,18 +27,18 @@ esphome run eggcooker.yaml```
 * 3.3V and ground delivered by Hi-Link
 
 Display:
-* T_CS   12
-* T_IRQ  27
-* TFT_DC 2
-* TFT_CS 5
-* TFT_RST 25
-* LED   26
+* T_CS   22
+* T_IRQ  32
+* TFT_DC 17
+* TFT_CS 4
+* TFT_RST 16
+* LED   21
 * T_DO/SDO(MISO) 19
 * T_DIN/SDI(MOSI) 23
 * T_CLK/SCK 18
 
 Other peripherals:
-* Buzzer on pins 16 and 17
+* Buzzer on pins 25 and 27
 * ![heat element switching](heatelementcircuit.png)
 
 ## Licence
