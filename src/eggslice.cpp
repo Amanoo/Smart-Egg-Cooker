@@ -29,9 +29,9 @@ bool wifirunning = false;
 
 //GPIO
 #define heater 13
-#define backlight 21
-#define buzzer 25
-#define buzzer2 27
+#define backlight 26
+#define buzzer 16
+#define buzzer2 17
 
 //Preferences myPrefs;
 
