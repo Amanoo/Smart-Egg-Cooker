@@ -1,12 +1,12 @@
 # Smart-Egg-Cooker
 Design for a WiFi-enabled egg cooker with touchscreen and Home Assistant integration
 
-Libraries used: GUIslice by ImpulseAdventure, TFT_eSPI by Bodmer, and ThingPulse_XPT2046_Touch by ThingPulse.
+Libraries used: GUIslice by ImpulseAdventure, TFT_eSPI by Bodmer, and XPT2046_Touch by Paul Stoffregen.
 
 GUIslice and TFT_eSPI libraries included because the configuration is a little tricky. All rights to GUIslice reserved by ImpulseAdventure under the MIT licence. All rights to TFT_eSPI reserved by Bodmer under the BSD licence.
 
 ## Commands to compile:
-```python3 -m venv venv                                                                                             ✔ 
+```python3 -m venv venv
 source venv/bin/activate
 pip3 install esphome
 pip3 install tornado esptool
@@ -26,7 +26,7 @@ esphome run eggcooker.yaml```
 ## Connections:
 * 3.3V and ground delivered by Hi-Link
 
-Display:
+## Display:
 * T_CS   12
 * T_IRQ  27
 * TFT_DC 2
@@ -37,9 +37,10 @@ Display:
 * T_DIN/SDI(MOSI) 23
 * T_CLK/SCK 18
 
-Other peripherals:
+## Other peripherals:
 * Buzzer on pins 16 and 17
-* ![heat element switching](heatelementcircuit.png)
+
+![heat element switching](heatelementcircuit.png)
 
 ## Licence
 Project released under GPL3

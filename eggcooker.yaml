@@ -32,7 +32,7 @@ esphome:
     - adafruit/Adafruit BusIO
     - adafruit/Adafruit GFX Library
     - adafruit/Adafruit ILI9341
-    - thingpulse/ThingPulse XPT2046 Touch
+    - paulstoffregen/XPT2046_Touchscreen
     - https://github.com/Amanoo/EggCooker_TFT_eSPI.git
     - https://github.com/Amanoo/EggCooker_GUIslice.git
   name: "eggcooker"
