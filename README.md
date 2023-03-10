@@ -6,11 +6,13 @@ Libraries used: GUIslice by ImpulseAdventure, TFT_eSPI by Bodmer, and XPT2046_To
 GUIslice and TFT_eSPI libraries included because the configuration is a little tricky. All rights to GUIslice reserved by ImpulseAdventure under the MIT licence. All rights to TFT_eSPI reserved by Bodmer under the BSD licence.
 
 ## Commands to compile:
-```python3 -m venv venv
+```
+python3 -m venv venv
 source venv/bin/activate
 pip3 install esphome
 pip3 install tornado esptool
-esphome run eggcooker.yaml```
+esphome run eggcooker.yaml
+```
 
 ## Components used:
 * ESP32
