@@ -623,14 +623,17 @@ void set_planner_mins(float x){
 }
 
 void set_timer_offset(float x){
+  timeroffset_->publish_state(x);
   update_timer();
 }
 
 void set_hardness_offset(float x){
+  hardnessoffset_->publish_state(x);
   update_timer();
 }
 
 void set_size_offset(float x){
+  sizeoffset_->publish_state(x);
   update_timer();
 }
 
