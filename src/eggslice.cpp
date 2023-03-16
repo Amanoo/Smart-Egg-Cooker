@@ -45,7 +45,6 @@ int timer_seconds = 0;
 int64_t seconds_passed = 0;
 int64_t minutes_passed = 0;
 
-
 //bit of anti-spam
 uint32_t lastMillis;
 
@@ -56,6 +55,9 @@ Select *size_ {nullptr};
 Switch *planOnOff_ {nullptr};
 Number *planninghours_ {nullptr};
 Number *planningminutes_ {nullptr};
+Number *timeroffset_ {nullptr};
+Number *hardnessoffset_ {nullptr};
+Number *sizeoffset_ {nullptr};
 
 // Save some element references for direct access
 //<Save_References !Start!>
@@ -433,7 +435,7 @@ void update_size() {
 
 //Update GUI element that displays timer
 void update_timer() {
-  if (!timerstate_->state) timer_seconds = 360 + 40 * size_->active_index().value()+ 180 * hardness_->active_index().value();  //don't use inputs to change the timer if timer is running
+  if (!timerstate_->state) timer_seconds = timeroffset_->state + sizeoffset_->state * size_->active_index().value()+ hardnessoffset_->state * hardness_->active_index().value();  //don't use inputs to change the timer if timer is running
   int minutes = timer_seconds / 60;
   int secs = timer_seconds % 60;
   char numstr[6];
@@ -476,7 +478,7 @@ void findWiFi(void* parameter) {
 }
 
 //constructor
-EggCooker::EggCooker(Sensor* secs, Switch* timerstate, Select* size, Select* hardness, Switch *planOnOff, Number* planninghours, Number* planningminutes){
+EggCooker::EggCooker(Sensor* secs, Switch* timerstate, Select* size, Select* hardness, Switch *planOnOff, Number* planninghours, Number* planningminutes,Number* timeroffset, Number* hardnessoffset, Number* sizeoffset){
   timerstate_=timerstate;
   secs_=secs;
   size_=size;
@@ -484,6 +486,9 @@ EggCooker::EggCooker(Sensor* secs, Switch* timerstate, Select* size, Select* har
   planOnOff_=planOnOff;
   planninghours_=planninghours;
   planningminutes_=planningminutes;
+  timeroffset_ = timeroffset;
+  hardnessoffset_ = hardnessoffset;
+  sizeoffset_ = sizeoffset;
 }
 
 void EggCooker::setup() {
@@ -616,3 +621,17 @@ void set_planner_mins(float x){
   planningminutes_->publish_state(x);
   update_planner();
 }
+
+void set_timer_offset(float x){
+  update_timer();
+}
+
+void set_hardness_offset(float x){
+  update_timer();
+}
+
+void set_size_offset(float x){
+  update_timer();
+}
+
+

@@ -62,14 +62,6 @@ wifi:
 
 captive_portal:
 
-# Define the custom component
-custom_component:
-  - id: cooker
-    lambda: |-
-      auto my_custom = new EggCooker(id(secs),id(timerstate),id(size),id(hardness),id(planOnOff),id(planninghours),id(planningminutes));
-      App.register_component(my_custom);
-      return {my_custom};
-
 sensor:
   - platform: template
     name: "Egg Cooker Time"
@@ -139,6 +131,7 @@ number:
   - platform: template
     name: "Egg Cooker Planning Hours"
     unit_of_measurement: h
+    mode: box
     min_value: 0
     max_value: 30
     step: 1
@@ -150,6 +143,7 @@ number:
   - platform: template
     name: "Egg Cooker Planning Minutes"
     unit_of_measurement: min
+    mode: box
     min_value: 0
     max_value: 59
     step: 1
@@ -158,3 +152,53 @@ number:
     set_action:
       - lambda: |-
           set_planner_mins(x);
+  - platform: template
+    name: "Timer offset"
+    unit_of_measurement: s
+    mode: box
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 1000
+    initial_value: 450
+    step: 1
+    id: timeroffset
+    set_action:
+      - lambda: |-
+          update_timer();
+  - platform: template
+    name: "Hardness offset"
+    unit_of_measurement: s
+    mode: box
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 800
+    initial_value: 180
+    step: 1
+    id: hardnessoffset
+    set_action:
+      - lambda: |-
+          update_timer();
+  - platform: template
+    name: "Size offset"
+    unit_of_measurement: s
+    mode: box
+    restore_value: true
+    optimistic: true
+    min_value: 0
+    max_value: 200
+    initial_value: 40
+    step: 1
+    id: sizeoffset
+    set_action:
+      - lambda: |-
+          update_timer();
+
+# Define the custom component
+custom_component:
+  - id: cooker
+    lambda: |-
+      auto my_custom = new EggCooker(id(secs),id(timerstate),id(size),id(hardness),id(planOnOff),id(planninghours),id(planningminutes),id(timeroffset),id(hardnessoffset),id(sizeoffset));
+      App.register_component(my_custom);
+      return {my_custom};

@@ -28,9 +28,12 @@ void plannerOn();
 void plannerOff();
 void set_planner_hours(float x);
 void set_planner_mins(float x);
+void set_timer_offset(float x);
+void set_hardness_offset(float x);
+void set_size_offset(float x);
 class EggCooker : public Component, public CustomAPIDevice {
   public:
-    EggCooker(Sensor *secs, Switch *timerstate, Select* size, Select* hardness, Switch *planOnOff, Number* planninghours, Number* planningminutes);
+    EggCooker(Sensor *secs, Switch *timerstate, Select* size, Select* hardness, Switch *planOnOff, Number* planninghours, Number* planningminutes,Number* timeroffset, Number* hardnessoffset, Number* sizeoffset);
     void setup() override;
     void loop() override;
 
